@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1765028381818,
+    "user": "Anish",
+    "product": "Denim",
+    "category": "Fashion",
+    "rating": 4,
+    "review": "test1",
+    "time": "just now"
+  },
+  {
+    "id": 1,
+    "user": "Aman Verma",
+    "product": "Noise Cancelling Headphones",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "Great clarity and deep bass. Battery life is solid.",
+    "time": "2 hours ago"
+  },
+  {
+    "id": 2,
+    "user": "Priya Sharma",
+    "product": "Smart Fitness Band",
+    "category": "Electronics",
+    "rating": 5,
+    "review": "Accurate tracking and comfortable for daily use.",
+    "time": "Yesterday"
+  },
+  {
+    "id": 3,
+    "user": "Rahul Singh",
+    "product": "Wings of Fire",
+    "category": "Books",
+    "rating": 3,
+    "review": "Sound is okay but build quality could be better.",
+    "time": "3 days ago"
+  }
+]
