@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import RecentReview from "./RecentReview";
 import { useNavigate } from "react-router-dom";
+import Carousel from "./Carousel";
+import HomepBanner from "./HomepBanner";
+import HomepWriteAreview from "./HomepWriteAreview";
+import HomepTrustBanner from "./HomepTrustBanner";
 
 const Home = () => {
   const [reviews, setReviews] = useState([]);
@@ -35,30 +39,21 @@ const [selectedRating, setSelectedRating] = useState("All");
 
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-
-      <div className="w-full flex items-center justify-center my-10">
-      <div className="flex items-center justify-center w-full max-w-4xl">
-        <div className="flex-1 border-t border-gray-300"></div>
-        <div className="mx-4 px-6 py-2 bg-white border border-gray-300 rounded-full shadow-sm text-sm flex items-center">
-          <span className="text-gray-700">Bought something recently?</span>
-          <button
-            onClick={() => navigate("/write-review")}
-            className="text-blue-600 font-medium ml-2 hover:underline flex items-center cursor-pointer"
-          >
-            Write a review →
-          </button>
-        </div>
-        <div className="flex-1 border-t border-gray-300"></div>
-      </div>
+    <>
+    <Carousel/>
+    <div className="max-w-5xl mx-auto px-4 py-3">
+    <HomepWriteAreview/>
+    <div className="pt-10 pb-20">
+    <HomepBanner/>
     </div>
+    
     <div className="flex gap-3 my-4">
   {["All", "Electronics", "Fashion", "Home", "Books"].map(cat => (
     <button
       key={cat}
       onClick={() => setSelectedCategory(cat)}
-      className={`px-4 py-1 rounded-full border 
-        ${selectedCategory === cat ? "bg-blue-600 text-white" : "bg-white"}`}
+      className={`px-4 py-1 rounded-full border border-gray-200 
+        ${selectedCategory === cat ? "bg-green-600 text-white" : "bg-white"}`}
     >
       {cat}
     </button>
@@ -69,8 +64,8 @@ const [selectedRating, setSelectedRating] = useState("All");
     <button
       key={r}
       onClick={() => setSelectedRating(r)}
-      className={`px-4 py-1 rounded-full border 
-        ${selectedRating === r ? "bg-yellow-500 text-white" : "bg-white"}`}
+      className={`px-4 py-1 rounded-full border border-gray-200 
+        ${selectedRating === r ? "bg-green-600 text-white" : "bg-white"}`}
     >
       {r === "All" ? "All Ratings" : `${r} Star`}
     </button>
@@ -80,7 +75,9 @@ const [selectedRating, setSelectedRating] = useState("All");
 
       {/* Recent Reviews */}
       <RecentReview reviews={reviews} />
+      <HomepTrustBanner/>
     </div>
+    </>
   );
 };
 
