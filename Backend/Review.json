@@ -1,38 +1,54 @@
 [
   {
+    "id": 1765607609824,
+    "user": "T1",
+    "product": "p1",
+    "category": "Home",
+    "rating": 5,
+    "review": "test1*",
+    "images": [
+      "/uploads/1765607609809-Screenshot_2025-11-16_165335.png"
+    ],
+    "time": "just now"
+  },
+  {
     "id": 1765028381818,
     "user": "Anish",
     "product": "Denim",
     "category": "Fashion",
     "rating": 4,
     "review": "test1",
-    "time": "just now"
+    "time": "just now",
+    "images": []
   },
   {
     "id": 1,
-    "user": "Aman Verma",
+    "user": "Avishka Kaushik",
     "product": "Noise Cancelling Headphones",
     "category": "Electronics",
     "rating": 4,
     "review": "Great clarity and deep bass. Battery life is solid.",
-    "time": "2 hours ago"
+    "time": "2 hours ago",
+    "images": []
   },
   {
     "id": 2,
-    "user": "Priya Sharma",
+    "user": "Siya Singh",
     "product": "Smart Fitness Band",
     "category": "Electronics",
     "rating": 5,
     "review": "Accurate tracking and comfortable for daily use.",
-    "time": "Yesterday"
+    "time": "Yesterday",
+    "images": []
   },
   {
     "id": 3,
-    "user": "Rahul Singh",
+    "user": "Nishant Saikia",
     "product": "Wings of Fire",
     "category": "Books",
     "rating": 3,
     "review": "Sound is okay but build quality could be better.",
-    "time": "3 days ago"
+    "time": "3 days ago",
+    "images": []
   }
 ]

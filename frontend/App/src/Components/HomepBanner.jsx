@@ -16,7 +16,7 @@ export default function HomepBanner() {
 
           {/* Login Button */}
           <button className="bg-black text-white px-5 py-2 rounded-full font-medium cursor-pointer">
-            Login or sign up
+            Login or Sign up
           </button>
 
           <div className="w-px h-6 bg-gray-400"></div>

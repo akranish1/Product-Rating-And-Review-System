@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const FacebookIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-white hover:text-gray-300">
@@ -31,9 +32,8 @@ const Footer = () => {
           <div>
             <h3 className="font-bold mb-4">About</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="hover:underline">About us</a></li>
-              <li><a href="#" className="hover:underline">Contact</a></li>
-              <li><a href="#" className="hover:underline">How Trustpilot works</a></li>
+              <li><Link to="/about" className="hover:underline">About us</Link></li>
+              <li><a href="#" className="hover:underline">How It works</a></li>
             </ul>
           </div>
 

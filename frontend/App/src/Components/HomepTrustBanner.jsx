@@ -1,6 +1,6 @@
 export default function HomepTrustBanner() {
   return (
-    <div className="w-full bg-[#C2F8D1] rounded-3xl p-10 my-15 flex flex-col md:flex-row justify-between items-center gap-10">
+    <div className="w-full bg-[#F4E7D3] rounded-3xl p-10 my-15 flex flex-col md:flex-row justify-between items-center gap-10">
 
       {/* LEFT SECTION */}
       <div className="max-w-xl space-y-4">
@@ -20,13 +20,13 @@ export default function HomepTrustBanner() {
       </div>
 
       {/* RIGHT CARD */}
-      <div className="bg-[#004B2D] text-white p-6 rounded-2xl w-full md:w-[420px] relative overflow-visible">
+      <div className="bg-[#f5cc8f] text-black p-6 rounded-2xl w-full md:w-[420px] relative overflow-visible">
 
         <h2 className="text-lg font-semibold">
           Our new Trust Report has landed!
         </h2>
 
-        <p className="text-gray-200 text-sm mt-2 leading-relaxed">
+        <p className="text-gray-900 text-sm mt-2 leading-relaxed">
           The actions we’ve taken to protect you and promote trust on our platform.
         </p>
 

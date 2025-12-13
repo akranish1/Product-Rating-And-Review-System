@@ -9,9 +9,8 @@ import HomepTrustBanner from "./HomepTrustBanner";
 const Home = () => {
   const [reviews, setReviews] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
-const [selectedRating, setSelectedRating] = useState("All");
+  const [selectedRating, setSelectedRating] = useState("All");
   const navigate = useNavigate();
-  
 
   // fetch reviews from backend
  useEffect(() => {
@@ -40,41 +39,18 @@ const [selectedRating, setSelectedRating] = useState("All");
 
   return (
     <>
-    <Carousel/>
-    <div className="max-w-5xl mx-auto px-4 py-3">
-    <HomepWriteAreview/>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div className="mb-6">
+        <Carousel />
+      </div>
+
+      <HomepWriteAreview />
+      <RecentReview reviews={reviews} />
     <div className="pt-10 pb-20">
     <HomepBanner/>
     </div>
-    
-    <div className="flex gap-3 my-4">
-  {["All", "Electronics", "Fashion", "Home", "Books"].map(cat => (
-    <button
-      key={cat}
-      onClick={() => setSelectedCategory(cat)}
-      className={`px-4 py-1 rounded-full border border-gray-200 
-        ${selectedCategory === cat ? "bg-green-600 text-white" : "bg-white"}`}
-    >
-      {cat}
-    </button>
-  ))}
-</div>
-<div className="flex gap-3 my-4">
-  {["All", 5, 4, 3, 2, 1].map(r => (
-    <button
-      key={r}
-      onClick={() => setSelectedRating(r)}
-      className={`px-4 py-1 rounded-full border border-gray-200 
-        ${selectedRating === r ? "bg-green-600 text-white" : "bg-white"}`}
-    >
-      {r === "All" ? "All Ratings" : `${r} Star`}
-    </button>
-  ))}
-</div>
-
-
       {/* Recent Reviews */}
-      <RecentReview reviews={reviews} />
+      
       <HomepTrustBanner/>
     </div>
     </>
