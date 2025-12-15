@@ -1,28 +1,38 @@
 
 import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Footer from './Components/Footer'
 import Homepage from './Components/Homepage'
-import Navbar from './Components/Navbar'
+import MainLayout from './Components/MainLayout';
 import WriteReview from './Components/WriteReview';
 import ReviewDetail from './Components/ReviewDetail';
 import About from './Components/About';
+import Login from './AuthComponent/Login';
+import SignUp from './AuthComponent/SignUp';
+import Profile from './Components/Profile';
 
 
 
 function App() {
   return (
 
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
+       <BrowserRouter>
+      <Routes>
+
+        {/* Routes WITH navbar + footer */}
+        <Route element={<MainLayout />}>
           <Route path="/" element={<Homepage />} />
-          <Route path="/write-review" element={<WriteReview/>} />
-          <Route path="/about" element={<About/>} />
-          <Route path="/review/:id" element={<ReviewDetail/>} />
-        </Routes>
-        <Footer />
-      </BrowserRouter>
+          <Route path="/write-review" element={<WriteReview />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/review/:id" element={<ReviewDetail />} />
+          <Route path="/profile" element={<Profile/>} />
+        </Route>
+
+        {/* Route WITHOUT navbar + footer */}
+        <Route path="/auth" element={<Login />} />
+        <Route path="/auth/SignUp" element={<SignUp/>} />
+
+      </Routes>
+    </BrowserRouter>
 
   )
 }
