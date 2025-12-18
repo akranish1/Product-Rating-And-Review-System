@@ -1,4 +1,10 @@
+import { useNavigate } from "react-router-dom";
+
 export default function HomepBanner() {
+  const navigate=useNavigate();
+  function handleClick(){
+    navigate('/auth');
+  }
   return (
     <div className="w-full bg-green-200 rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-10">
       
@@ -15,7 +21,7 @@ export default function HomepBanner() {
         <div className="flex items-center gap-4 mt-6">
 
           {/* Login Button */}
-          <button className="bg-black text-white px-5 py-2 rounded-full font-medium cursor-pointer">
+          <button className="bg-black text-white px-5 py-2 rounded-full font-medium cursor-pointer "   onClick={handleClick}>
             Login or Sign up
           </button>
 

@@ -70,7 +70,7 @@ export default function Carousel() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6">
       <div
-        className="relative overflow-hidden rounded-lg shadow-lg bg-black"
+        className="relative overflow-hidden rounded-[2rem] shadow-lg bg-black"
         onMouseEnter={stopAutoSlide}
         onMouseLeave={startAutoSlide}
         onTouchStart={handleTouchStart}

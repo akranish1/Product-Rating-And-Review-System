@@ -11,19 +11,47 @@ const WriteReview = () => {
 
   const navigate = useNavigate();
 
+  // 🔸 NEW: read token once (single source)
+  const token = localStorage.getItem("token");
+
+  // 🔸 NEW: soft auth guard (UI-level)
+  if (!token) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-24 text-center">
+        <h2 className="text-2xl font-semibold mb-3">
+          Login required 🔐
+        </h2>
+        <p className="text-gray-600 mb-6">
+          You must be logged in to write a review.
+        </p>
+        <button
+          onClick={() => navigate("/auth")}
+          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+        >
+          Go to Login
+        </button>
+      </div>
+    );
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 🔸 NEW: submit-level safety lock
+    if (!token) {
+      alert("Please login first");
+      navigate("/auth");
+      return;
+    }
+
     try {
       const form = new FormData();
-      form.append("product", product);
+      form.append("product", product.trim());
       form.append("category", category);
-      form.append("rating", rating);
-      form.append("review", review);
+      form.append("rating", Number(rating)); // 🔸 ensure number
+      form.append("review", review.trim());
 
       images.forEach((file) => form.append("images", file));
-
-      const token = localStorage.getItem("token"); // 🔐 JWT
 
       const res = await fetch("http://localhost:5000/write-review", {
         method: "POST",

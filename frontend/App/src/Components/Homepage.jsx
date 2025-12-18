@@ -5,6 +5,7 @@ import Carousel from "./Carousel";
 import HomepBanner from "./HomepBanner";
 import HomepWriteAreview from "./HomepWriteAreview";
 import HomepTrustBanner from "./HomepTrustBanner";
+import Faq from "./Faq";
 
 const Home = () => {
   const [reviews, setReviews] = useState([]);
@@ -50,7 +51,7 @@ const Home = () => {
     <HomepBanner/>
     </div>
       {/* Recent Reviews */}
-      
+      <Faq/>
       <HomepTrustBanner/>
     </div>
     </>

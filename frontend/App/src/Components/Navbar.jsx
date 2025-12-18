@@ -1,81 +1,100 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
-  const [open, setOpen] = useState(false)
-  const [isLogged, setIsLogged] = useState(false)
-  const navigate = useNavigate()
+  const [open, setOpen] = useState(false);
+  const [isLogged, setIsLogged] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const check = () => {
-      const u =
-        localStorage.getItem('currentUser') ||
-        localStorage.getItem('user')
-      setIsLogged(Boolean(u))
-    }
-
-    check()
-
-    const onStorage = () => check()
-    window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
-  }, [])
+      const u = localStorage.getItem('currentUser') || localStorage.getItem('user');
+      setIsLogged(Boolean(u));
+    };
+    check();
+    window.addEventListener('storage', check);
+    return () => window.removeEventListener('storage', check);
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('currentUser')
-    localStorage.removeItem('user')
-    setIsLogged(false)
-    navigate('/auth')
-  }
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('user');
+    setIsLogged(false);
+    navigate('/auth');
+  };
+
+  // Helper to check active route
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bg-black text-white">
+    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="text-2xl font-semibold">
-              MySite
+        <div className="flex items-center justify-between h-20">
+          
+          {/* LOGO */}
+          <div className="flex items-center shrink-0">
+            <Link to="/" className="text-2xl font-black tracking-tighter hover:opacity-80 transition-opacity">
+              Rate<span className="text-green-500">Right</span>
             </Link>
           </div>
 
-          {/* Desktop links */}
-          <div className="hidden md:flex space-x-6 items-center">
-            <Link to="/" className="hover:text-gray-600 dark:hover:text-gray-300">
-              Home
-            </Link>
-            <Link to="/about" className="hover:text-gray-600 dark:hover:text-gray-300">
-              About
-            </Link>
-
-            {isLogged && (
-              <Link to="/profile" className="hover:text-gray-600 dark:hover:text-gray-300">
-                Profile
-              </Link>
-            )}
-
-            {!isLogged ? (
-              <Link to="/auth" className="hover:text-gray-600 dark:hover:text-gray-300">
-                Login
-              </Link>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className="text-red-400 hover:text-red-300"
+          {/* DESKTOP NAVIGATION */}
+          <div className="hidden md:flex items-center bg-white/5 border border-white/10 px-2 py-1.5 rounded-full backdrop-blur-sm">
+            {[
+              { name: 'Home', path: '/' },
+              { name: 'About', path: '/about' },
+              { name: 'Reviews', path: '/review' },
+            ].map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  isActive(item.path) 
+                  ? 'bg-white text-black shadow-lg' 
+                  : 'hover:text-gray-300'
+                }`}
               >
-                Logout
-              </button>
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* ACTION BUTTONS */}
+          <div className="hidden md:flex items-center gap-4">
+            {isLogged ? (
+              <>
+                <Link 
+                  to="/profile" 
+                  className={`text-sm font-medium ${isActive('/profile') ? 'text-blue-400' : 'text-gray-300 hover:text-white'}`}
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-5 py-2 rounded-xl text-sm font-bold border border-red-500/20 transition-all duration-300"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/auth"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-blue-600/20 transition-all active:scale-95"
+              >
+                Sign In
+              </Link>
             )}
           </div>
 
-          {/* Mobile hamburger */}
-          <div className="md:hidden flex items-center gap-2">
+          {/* MOBILE TOGGLE */}
+          <div className="md:hidden flex items-center">
             <button
-              onClick={() => setOpen(v => !v)}
-              aria-label="Toggle menu"
-              className="inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800"
+              onClick={() => setOpen(!open)}
+              className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-300"
             >
-              <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {open ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -87,43 +106,25 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            <Link onClick={() => setOpen(false)} to="/" className="block px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700">
-              Home
-            </Link>
-            <Link onClick={() => setOpen(false)} to="/about" className="block px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700">
-              About
-            </Link>
-
-            {isLogged && (
-              <Link onClick={() => setOpen(false)} to="/profile" className="block px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700">
-                Profile
-              </Link>
-            )}
-
-            {!isLogged ? (
-              <Link onClick={() => setOpen(false)} to="/auth" className="block px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700">
-                Login
-              </Link>
-            ) : (
-              <button
-                onClick={() => {
-                  setOpen(false)
-                  handleLogout()
-                }}
-                className="block w-full text-left px-3 py-2 rounded-md text-red-500 hover:bg-gray-200 dark:hover:bg-slate-700"
-              >
-                Logout
-              </button>
-            )}
-          </div>
+      {/* MOBILE MENU */}
+      <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${open ? 'max-h-96 border-t border-white/10' : 'max-h-0'}`}>
+        <div className="px-4 py-6 space-y-3 bg-black">
+          <Link onClick={() => setOpen(false)} to="/" className="block text-lg font-medium hover:text-blue-500">Home</Link>
+          <Link onClick={() => setOpen(false)} to="/about" className="block text-lg font-medium hover:text-blue-500">About</Link>
+          <Link onClick={() => setOpen(false)} to="/review" className="block text-lg font-medium hover:text-blue-500">Reviews</Link>
+          <hr className="border-white/5 my-4" />
+          {isLogged ? (
+            <>
+              <Link onClick={() => setOpen(false)} to="/profile" className="block text-lg font-medium">Profile</Link>
+              <button onClick={() => { setOpen(false); handleLogout(); }} className="w-full text-left text-red-500 text-lg font-medium">Logout</button>
+            </>
+          ) : (
+            <Link onClick={() => setOpen(false)} to="/auth" className="block text-center bg-blue-600 py-3 rounded-xl font-bold">Sign In</Link>
+          )}
         </div>
-      )}
+      </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

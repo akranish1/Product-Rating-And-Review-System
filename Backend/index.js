@@ -13,6 +13,7 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const Review = require("./models/Review");
 const authMiddleware = require("./middleware/authMiddleware");
+const reviewRoutes = require("./Routes/Review");
 
 const app = express();
 app.use(cors());
@@ -44,22 +45,10 @@ const upload = multer({ storage });
    REVIEWS ROUTES (MongoDB)
 ========================= */
 
+
+app.use("/reviews", reviewRoutes);
 // ✅ GET all reviews
-app.get("/reviews", async (req, res) => {
-  try {
-    const { category, rating } = req.query;
 
-    const filter = {};
-    if (category && category !== "All") filter.category = category;
-    if (rating && rating !== "All") filter.rating = Number(rating);
-
-    const reviews = await Review.find(filter).sort({ createdAt: -1 });
-    res.json(reviews);
-  } catch (err) {
-    console.error("Fetch reviews error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
 
 // ✅ POST review (protected)
 app.post(

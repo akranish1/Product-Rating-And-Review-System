@@ -14,7 +14,7 @@ const ReviewDetail = () => {
       try {
         const res = await fetch("http://localhost:5000/reviews");
         const data = await res.json();
-        const found = data.find((r) => String(r.id) === String(id));
+        const found = data.find((r) => String(r._id) === String(id));
         setReview(found || null);
       } catch (err) {
         console.error(err);

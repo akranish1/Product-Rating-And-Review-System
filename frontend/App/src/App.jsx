@@ -9,6 +9,7 @@ import About from './Components/About';
 import Login from './AuthComponent/Login';
 import SignUp from './AuthComponent/SignUp';
 import Profile from './Components/Profile';
+import ReviewPage from './Components/ReviewPage';
 
 
 
@@ -25,6 +26,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/review/:id" element={<ReviewDetail />} />
           <Route path="/profile" element={<Profile/>} />
+          <Route path="/review" element={<ReviewPage/>} />
         </Route>
 
         {/* Route WITHOUT navbar + footer */}
