@@ -3,7 +3,6 @@ const cors = require("cors");
 const path = require("path");
 const fsSync = require("fs");
 const multer = require("multer");
-
 // DB + auth
 require("dotenv").config();
 const connectDB = require("./db");
@@ -14,9 +13,15 @@ const User = require("./models/User");
 const Review = require("./models/Review");
 const authMiddleware = require("./middleware/authMiddleware");
 const reviewRoutes = require("./Routes/Review");
+const cookieParser = require("cookie-parser");
 
 const app = express();
-app.use(cors());
+app.use(cookieParser());
+
+app.use(cors({
+  origin: "http://localhost:5173", // exact frontend origin
+  credentials: true
+}));
 app.use(express.json());
 
 // connect to MongoDB
@@ -81,19 +86,6 @@ app.post(
   }
 );
 
-// ✅ GET logged-in user's reviews (Profile)
-app.get("/reviews/my", authMiddleware, async (req, res) => {
-  try {
-    const reviews = await Review.find({
-      user: req.user.fullName,
-    }).sort({ createdAt: -1 });
-
-    res.json(reviews);
-  } catch (err) {
-    console.error("My reviews error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
 
 /* =========================
    AUTH ROUTES
@@ -125,10 +117,22 @@ app.post("/auth/signup", async (req, res) => {
     });
 
     const token = jwt.sign(
-      { id: user._id, email: user.email , fullName: user.fullName,},
+      {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+      },
       process.env.JWT_SECRET || "secret",
       { expiresIn: "7d" }
     );
+
+    // 🍪 SET HTTP-ONLY COOKIE
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,        // true in production (HTTPS)
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(201).json({
       user: {
@@ -137,7 +141,6 @@ app.post("/auth/signup", async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      token,
     });
   } catch (err) {
     console.error("Register error:", err);
@@ -145,7 +148,7 @@ app.post("/auth/signup", async (req, res) => {
   }
 });
 
-// LOGIN
+
 app.post("/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -167,10 +170,22 @@ app.post("/auth/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email, fullName: user.fullName, },
+      {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+      },
       process.env.JWT_SECRET || "secret",
       { expiresIn: "7d" }
     );
+
+    // 🍪 SET HTTP-ONLY COOKIE
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,        // true in prod
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.json({
       user: {
@@ -179,7 +194,6 @@ app.post("/auth/login", async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      token,
     });
   } catch (err) {
     console.error("Login error:", err);

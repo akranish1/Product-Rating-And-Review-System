@@ -13,17 +13,19 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // ✅ FIXED: Added the missing handleChange function
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      // If it's a checkbox, use 'checked', otherwise use 'value'
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
   const bgImage =
     "https://ps.w.org/ryviu/assets/banner-1544x500.png?rev=2182075";
 
-  const handleChange = (e) => {
-    const value =
-      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-
-    setFormData({ ...formData, [e.target.name]: value });
-  };
-
-  // ✅ FIXED: clean async function (no IIFE)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -47,14 +49,12 @@ const SignUp = () => {
         password: formData.password,
       };
 
-      const res = await fetch(
-        "http://localhost:5000/auth/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch("http://localhost:5000/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", 
+        body: JSON.stringify(payload),
+      });
 
       const data = await res.json();
 
@@ -64,9 +64,12 @@ const SignUp = () => {
         return;
       }
 
-      if (data.token) localStorage.setItem("token", data.token);
-      if (data.user)
-        localStorage.setItem("currentUser", JSON.stringify(data.user));
+      if (data.user) {
+        localStorage.setItem(
+          "currentUser",
+          JSON.stringify(data.user)
+        );
+      }
 
       alert("Account created successfully!");
       window.location.href = "/auth";
@@ -78,6 +81,7 @@ const SignUp = () => {
     }
   };
 
+  // UI styling variables (kept exactly as you provided)
   const labelBaseClasses =
     "absolute left-4 px-1 transition-all duration-200 pointer-events-none rounded";
   const labelFloatingState = "-top-2.5 text-xs text-blue-300 bg-gray-900";

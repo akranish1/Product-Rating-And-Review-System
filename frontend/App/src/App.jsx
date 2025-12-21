@@ -10,15 +10,19 @@ import Login from './AuthComponent/Login';
 import SignUp from './AuthComponent/SignUp';
 import Profile from './Components/Profile';
 import ReviewPage from './Components/ReviewPage';
+import ScrollToTop from './assets/ScrolltoTop';
+
 
 
 
 function App() {
   return (
+    
 
        <BrowserRouter>
+       <ScrollToTop/>
       <Routes>
-
+        
         {/* Routes WITH navbar + footer */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Homepage />} />

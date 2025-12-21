@@ -50,5 +50,506 @@
     "review": "Sound is okay but build quality could be better.",
     "time": "3 days ago",
     "images": []
+  },
+  {
+    "id": 1765028381819,
+    "user": "Aarav Mehta",
+    "product": "Mechanical Keyboard",
+    "category": "Electronics",
+    "rating": 5,
+    "review": "The tactile feedback is incredible. Best purchase for my home office.",
+    "time": "4 hours ago",
+    "images": ["/uploads/kb_01.png"]
+  },
+  {
+    "id": 1765028381820,
+    "user": "Priya Sharma",
+    "product": "Yoga Mat",
+    "category": "Fitness",
+    "rating": 4,
+    "review": "Good grip, though it had a slight rubbery smell for the first few days.",
+    "time": "6 hours ago",
+    "images": []
+  },
+  {
+    "id": 1765028381821,
+    "user": "Rohan Das",
+    "product": "Ergonomic Chair",
+    "category": "Home",
+    "rating": 2,
+    "review": "Assembly was a nightmare and the lumbar support is way too stiff.",
+    "time": "10 hours ago",
+    "images": ["/uploads/chair_broken.jpg"]
+  },
+  {
+    "id": 1765028381822,
+    "user": "Sanya Iyer",
+    "product": "Air Purifier",
+    "category": "Home",
+    "rating": 5,
+    "review": "Noticed a huge difference in air quality within 24 hours. Very quiet.",
+    "time": "12 hours ago",
+    "images": []
+  },
+  {
+    "id": 1765028381823,
+    "user": "Vikram Singh",
+    "product": "Running Shoes",
+    "category": "Fashion",
+    "rating": 4,
+    "review": "Very lightweight. Fit is slightly narrow, so order a size up.",
+    "time": "1 day ago",
+    "images": ["/uploads/shoes_sideview.png"]
+  },
+  {
+    "id": 1765028381824,
+    "user": "Ananya K.",
+    "product": "Instant Pot",
+    "category": "Kitchen",
+    "rating": 5,
+    "review": "Saves so much time! Made the perfect risotto in 15 minutes.",
+    "time": "1 day ago",
+    "images": []
+  },
+  {
+    "id": 1765028381825,
+    "user": "Rahul G.",
+    "product": "Electric Kettle",
+    "category": "Kitchen",
+    "rating": 3,
+    "review": "Boils fast, but the exterior gets extremely hot to the touch.",
+    "time": "2 days ago",
+    "images": []
+  },
+  {
+    "id": 1765028381826,
+    "user": "Meera Reddy",
+    "product": "Atomic Habits",
+    "category": "Books",
+    "rating": 5,
+    "review": "Life-changing perspective on small improvements.",
+    "time": "2 days ago",
+    "images": []
+  },
+  {
+    "id": 1765028381827,
+    "user": "Karan Johar",
+    "product": "Oversized Hoodie",
+    "category": "Fashion",
+    "rating": 4,
+    "review": "Super cozy material, perfect for winters.",
+    "time": "3 days ago",
+    "images": ["/uploads/hoodie_texture.jpg"]
+  },
+  {
+    "id": 1765028381828,
+    "user": "Sneha P.",
+    "product": "Moisturizer",
+    "category": "Beauty",
+    "rating": 5,
+    "review": "Doesn't feel greasy and keeps my skin hydrated all day.",
+    "time": "3 days ago",
+    "images": []
+  },
+  {
+    "id": 1765028381829,
+    "user": "Arjun V.",
+    "product": "Gaming Mouse",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "The RGB lighting looks cool, and the DPI settings are easy to toggle.",
+    "time": "4 days ago",
+    "images": ["/uploads/mouse_setup.png"]
+  },
+  {
+    "id": 1765028381830,
+    "user": "Ishita B.",
+    "product": "Leather Wallet",
+    "category": "Fashion",
+    "rating": 2,
+    "review": "Color is much darker than the pictures. Disappointed.",
+    "time": "4 days ago",
+    "images": []
+  },
+  {
+    "id": 1765028381831,
+    "user": "Deepak S.",
+    "product": "Dumbbells (5kg)",
+    "category": "Fitness",
+    "rating": 5,
+    "review": "Solid build quality. Non-slip grip is a plus.",
+    "time": "5 days ago",
+    "images": []
+  },
+  {
+    "id": 1765028381832,
+    "user": "Tanvi M.",
+    "product": "Face Serum",
+    "category": "Beauty",
+    "rating": 1,
+    "review": "Caused a breakout after just two uses. Returning it.",
+    "time": "5 days ago",
+    "images": ["/uploads/skin_rash.jpg"]
+  },
+  {
+    "id": 1765028381833,
+    "user": "Varun L.",
+    "product": "Bluetooth Speaker",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "Great volume for its size, but lacks deep bass.",
+    "time": "6 days ago",
+    "images": []
+  },
+  {
+    "id": 1765028381834,
+    "user": "Kriti N.",
+    "product": "Cookware Set",
+    "category": "Kitchen",
+    "rating": 5,
+    "review": "Truly non-stick. Cleaning is a breeze.",
+    "time": "1 week ago",
+    "images": ["/uploads/pans_shiny.png"]
+  },
+  {
+    "id": 1765028381835,
+    "user": "Amit H.",
+    "product": "Action Camera",
+    "category": "Electronics",
+    "rating": 3,
+    "review": "Video quality is great, but the battery dies in 40 minutes.",
+    "time": "1 week ago",
+    "images": []
+  },
+  {
+    "id": 1765028381836,
+    "user": "Zara W.",
+    "product": "The Alchemist",
+    "category": "Books",
+    "rating": 5,
+    "review": "A timeless classic. Everyone should read this at least once.",
+    "time": "1 week ago",
+    "images": []
+  },
+  {
+    "id": 1765028381837,
+    "user": "Manish P.",
+    "product": "Smart Bulb",
+    "category": "Home",
+    "rating": 4,
+    "review": "App sync took a while, but works perfectly with Alexa now.",
+    "time": "1 week ago",
+    "images": []
+  },
+  {
+    "id": 1765028381838,
+    "user": "Riya T.",
+    "product": "Canvas Tote Bag",
+    "category": "Fashion",
+    "rating": 5,
+    "review": "Sturdy and fits my laptop perfectly. Love the aesthetic.",
+    "time": "2 weeks ago",
+    "images": ["/uploads/tote_bag.jpg"]
+  },
+  {
+    "id": 1765028381839,
+    "user": "Siddharth J.",
+    "product": "Power Bank",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "Heavy, but charges my phone 3 times over.",
+    "time": "2 weeks ago",
+    "images": []
+  },
+  {
+    "id": 1765028381840,
+    "user": "Nisha C.",
+    "product": "Table Lamp",
+    "category": "Home",
+    "rating": 3,
+    "review": "Looks beautiful but the switch feels a bit flimsy.",
+    "time": "2 weeks ago",
+    "images": []
+  },
+  {
+    "id": 1765028381841,
+    "user": "Abhishek D.",
+    "product": "Coffee Beans",
+    "category": "Grocery",
+    "rating": 5,
+    "review": "Rich aroma and perfect roast. My new favorite.",
+    "time": "2 weeks ago",
+    "images": ["/uploads/coffee_cup.png"]
+  },
+  {
+    "id": 1765028381842,
+    "user": "Pooja K.",
+    "product": "Matte Lipstick",
+    "category": "Beauty",
+    "rating": 4,
+    "review": "Lovely shade, but it's a bit drying on the lips.",
+    "time": "3 weeks ago",
+    "images": []
+  },
+  {
+    "id": 1765028381843,
+    "user": "Gaurav R.",
+    "product": "External SSD",
+    "category": "Electronics",
+    "rating": 5,
+    "review": "Blazing fast speeds. Transferring 50GB took seconds.",
+    "time": "3 weeks ago",
+    "images": []
+  },
+  {
+    "id": 1765028381844,
+    "user": "Ayesha F.",
+    "product": "Baking Tray",
+    "category": "Kitchen",
+    "rating": 4,
+    "review": "Even heating. Cookies came out perfect.",
+    "time": "3 weeks ago",
+    "images": ["/uploads/cookies_tray.jpg"]
+  },
+  {
+    "id": 1765028381845,
+    "user": "Tushar B.",
+    "product": "Hiking Backpack",
+    "category": "Fitness",
+    "rating": 5,
+    "review": "Survived a 3-day trek in the rain. Waterproofing is legit.",
+    "time": "4 weeks ago",
+    "images": ["/uploads/trek_bag.png"]
+  },
+  {
+    "id": 1765028381846,
+    "user": "Simran L.",
+    "product": "Electric Toothbrush",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "Teeth feel much cleaner compared to manual brushing.",
+    "time": "1 month ago",
+    "images": []
+  },
+  {
+    "id": 1765028381847,
+    "user": "Sahil M.",
+    "product": "Desk Organizer",
+    "category": "Home",
+    "rating": 3,
+    "review": "Smaller than expected, but helps keep the clutter down.",
+    "time": "1 month ago",
+    "images": []
+  },
+  {
+    "id": 1765028381848,
+    "user": "Kavya N.",
+    "product": "Scented Candle",
+    "category": "Home",
+    "rating": 5,
+    "review": "Lavender scent is so relaxing. Lasts a long time.",
+    "time": "1 month ago",
+    "images": ["/uploads/candle_lit.jpg"]
+  },
+  {
+    "id": 1765028381849,
+    "user": "Yash G.",
+    "product": "Water Bottle",
+    "category": "Fitness",
+    "rating": 2,
+    "review": "Leaked inside my bag on the first day. Poor seal.",
+    "time": "1 month ago",
+    "images": []
+  },
+  {
+    "id": 1765028381850,
+    "user": "Bhavna S.",
+    "product": "Sunscreen SPF 50",
+    "category": "Beauty",
+    "rating": 5,
+    "review": "No white cast at all. Perfect for brown skin.",
+    "time": "1 month ago",
+    "images": []
+  },
+  {
+    "id": 1765028381851,
+    "user": "Harsh V.",
+    "product": "Monopoly Board Game",
+    "category": "Games",
+    "rating": 5,
+    "review": "Classic fun. The pieces are well-made.",
+    "time": "2 months ago",
+    "images": ["/uploads/game_night.png"]
+  },
+  {
+    "id": 1765028381852,
+    "user": "Aditi R.",
+    "product": "Earrings",
+    "category": "Fashion",
+    "rating": 4,
+    "review": "Very elegant. A bit heavier than they look.",
+    "time": "2 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381853,
+    "user": "Prateek Z.",
+    "product": "Monitor Stand",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "Sturdy metal frame. Improved my posture.",
+    "time": "2 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381854,
+    "user": "Divya P.",
+    "product": "Blender",
+    "category": "Kitchen",
+    "rating": 1,
+    "review": "Stopped working after a month. Motor smells burnt.",
+    "time": "2 months ago",
+    "images": ["/uploads/broken_blender.jpg"]
+  },
+  {
+    "id": 1765028381855,
+    "user": "Rahul S.",
+    "product": "Pillow Set",
+    "category": "Home",
+    "rating": 5,
+    "review": "Like sleeping on a cloud. Highly recommend.",
+    "time": "3 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381856,
+    "user": "Kunal T.",
+    "product": "Microphone",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "Great for podcasting. Very clear voice pickup.",
+    "time": "3 months ago",
+    "images": ["/uploads/mic_test.png"]
+  },
+  {
+    "id": 1765028381857,
+    "user": "Shreya G.",
+    "product": "Plant Pot",
+    "category": "Home",
+    "rating": 5,
+    "review": "Beautiful ceramic finish. Looks great on my balcony.",
+    "time": "3 months ago",
+    "images": ["/uploads/succulent.jpg"]
+  },
+  {
+    "id": 1765028381858,
+    "user": "Aman U.",
+    "product": "Gym Bag",
+    "category": "Fitness",
+    "rating": 3,
+    "review": "Zippers are a bit sticky, but the space is decent.",
+    "time": "4 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381859,
+    "user": "Esha D.",
+    "product": "Notebook Set",
+    "category": "Stationery",
+    "rating": 5,
+    "review": "Paper quality is thick, no ink bleed through.",
+    "time": "4 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381860,
+    "user": "Jatin L.",
+    "product": "Smartphone Case",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "Sleek and provides good protection against drops.",
+    "time": "4 months ago",
+    "images": ["/uploads/case_view.png"]
+  },
+  {
+    "id": 1765028381861,
+    "user": "Ishaan M.",
+    "product": "Protein Powder",
+    "category": "Fitness",
+    "rating": 5,
+    "review": "Chocolate flavor is actually delicious and mixes well.",
+    "time": "5 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381862,
+    "user": "Megha V.",
+    "product": "Wall Clock",
+    "category": "Home",
+    "rating": 2,
+    "review": "The ticking sound is very loud and annoying at night.",
+    "time": "5 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381863,
+    "user": "Ojas S.",
+    "product": "Laptop Bag",
+    "category": "Fashion",
+    "rating": 5,
+    "review": "Padding is excellent. Feels very secure.",
+    "time": "5 months ago",
+    "images": ["/uploads/laptop_bag.jpg"]
+  },
+  {
+    "id": 1765028381864,
+    "user": "Pallavi Q.",
+    "product": "Hair Dryer",
+    "category": "Beauty",
+    "rating": 4,
+    "review": "Dries hair fast, but the cord is a bit short.",
+    "time": "6 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381865,
+    "user": "Raghav E.",
+    "product": "Wired Earphones",
+    "category": "Electronics",
+    "rating": 3,
+    "review": "Cheap and does the job, but wire tangles easily.",
+    "time": "6 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381866,
+    "user": "Sonal J.",
+    "product": "Bonsai Tree",
+    "category": "Home",
+    "rating": 5,
+    "review": "Arrived in perfect condition. It's a beautiful desk companion.",
+    "time": "7 months ago",
+    "images": ["/uploads/bonsai.png"]
+  },
+  {
+    "id": 1765028381867,
+    "user": "Tarun K.",
+    "product": "Webcam",
+    "category": "Electronics",
+    "rating": 4,
+    "review": "Clear 1080p video. Auto-focus is a bit slow in low light.",
+    "time": "7 months ago",
+    "images": []
+  },
+  {
+    "id": 1765028381868,
+    "user": "Urvashi A.",
+    "product": "Throw Blanket",
+    "category": "Home",
+    "rating": 5,
+    "review": "So soft and the color matches my sofa perfectly.",
+    "time": "8 months ago",
+    "images": ["/uploads/blanket_soft.jpg"]
   }
+
 ]

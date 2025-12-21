@@ -16,9 +16,9 @@ const RecentReview = ({ reviews }) => {
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
         {reviews.slice(0, 4).map((item) => (
           <div
-            key={item.id}
+            key={item._id}
             role="button"
-            onClick={() => navigate(`/review/${item.id}`)}
+            onClick={() => navigate(`/review/${item._id}`)}
             className="bg-white shadow p-4 rounded-lg border border-gray-200 cursor-pointer hover:shadow-md transition h-full"
           >
             <div className="flex items-center justify-between ">

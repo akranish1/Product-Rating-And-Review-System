@@ -12,37 +12,42 @@ const Login = () => {
 
     // ✅ FIXED: real login + redirect
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-        try {
-            const res = await fetch('http://localhost:5000/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
+    try {
+        const res = await fetch('http://localhost:5000/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include', // 🍪 REQUIRED
+            body: JSON.stringify({ email, password }),
+        });
 
-            const data = await res.json();
+        const data = await res.json();
 
-            if (!res.ok) {
-                alert(data.error || 'Login failed');
-                setIsLoading(false);
-                return;
-            }
-
-            // ✅ Save auth data
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('currentUser', JSON.stringify(data.user));
-
-            alert('Welcome back!');
-            window.location.href = '/'; // ✅ redirect to homepage
-        } catch (err) {
-            console.error('Login error', err);
-            alert('Login failed');
-        } finally {
+        if (!res.ok) {
+            alert(data.error || 'Login failed');
             setIsLoading(false);
+            return;
         }
-    };
+
+        // ✅ ONLY store user info (token is in httpOnly cookie)
+        localStorage.setItem(
+            'currentUser',
+            JSON.stringify(data.user)
+        );
+        localStorage.setItem("isLoggedIn", "true");
+
+        alert('Welcome back!');
+        window.location.href = '/';
+    } catch (err) {
+        console.error('Login error', err);
+        alert('Login failed');
+    } finally {
+        setIsLoading(false);
+    }
+};
+
 
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-gray-900 relative overflow-hidden font-sans">
@@ -63,7 +68,9 @@ const Login = () => {
             <div className="relative z-10 w-full max-w-md p-8 sm:p-10 bg-white/10 border border-white/20 rounded-3xl backdrop-blur-xl shadow-2xl">
 
                 <div className="text-center mb-10">
-                    <h2 className="text-3xl font-bold text-white tracking-tight">MySite</h2>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">Rate<span className="text-green-500">Right</span></h2>
+                   
+                    
                     <p className="text-blue-200/80 mt-2 text-sm">
                         Review products. Share insights.
                     </p>
@@ -129,7 +136,7 @@ const Login = () => {
             </div>
 
             <div className="absolute bottom-6 w-full text-center text-white/20 text-xs">
-                &copy; 2024 RateMaster Inc.
+                &copy; 2025 RateRight Inc.
             </div>
         </div>
     );

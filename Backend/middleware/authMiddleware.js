@@ -1,13 +1,12 @@
 const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+const authMiddleware = (req, res, next) => {
+  const token = req.cookies?.token; // 🍪 read from cookie
+
+  if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-
-  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(
@@ -16,7 +15,7 @@ const authMiddleware = (req, res, next) => {
     );
 
     req.user = decoded; // { id, email }
-    next(); // allow request to continue
+    next();
   } catch (err) {
     return res.status(401).json({ error: "Invalid token" });
   }
