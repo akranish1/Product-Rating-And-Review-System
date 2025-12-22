@@ -19,7 +19,7 @@ const app = express();
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "http://localhost:5173", // exact frontend origin
+  origin: "https://product-rating-and-review-system-1.onrender.com", // exact frontend origin
   credentials: true
 }));
 app.use(express.json());
