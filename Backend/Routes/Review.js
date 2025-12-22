@@ -25,6 +25,7 @@ router.get("/", async (req, res) => {
         { product: { $regex: q, $options: "i" } },
         { review: { $regex: q, $options: "i" } },
         { category: { $regex: q, $options: "i" } },
+        { user: { $regex: q, $options: "i" } },
       ];
     }
 

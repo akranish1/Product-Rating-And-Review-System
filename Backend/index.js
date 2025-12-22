@@ -27,9 +27,8 @@ app.use(express.json());
 // connect to MongoDB
 connectDB().catch((err) => console.error("DB connect error", err));
 
-/* =========================
-   FILE UPLOAD CONFIG
-========================= */
+
+//FILE UPLOAD CONFIG
 
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fsSync.existsSync(uploadsDir)) {
@@ -46,16 +45,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-/* =========================
-   REVIEWS ROUTES (MongoDB)
-========================= */
-
+//REVIEWS ROUTES (MongoDB)
 
 app.use("/reviews", reviewRoutes);
-// ✅ GET all reviews
+//  GET all reviews
 
-
-// ✅ POST review (protected)
+//  POST review (protected)
 app.post(
   "/write-review",
   authMiddleware,
@@ -86,10 +81,7 @@ app.post(
   }
 );
 
-
-/* =========================
-   AUTH ROUTES
-========================= */
+//AUTH ROUTES
 
 // SIGNUP
 app.post("/auth/signup", async (req, res) => {
@@ -200,6 +192,19 @@ app.post("/auth/login", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+
+app.post("/auth/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false, // true in production (HTTPS)
+  });
+  localStorage.removeItem("currentUser");
+
+  res.json({ message: "Logged out successfully" });
+});
+
 
 /* =========================
    SERVER START

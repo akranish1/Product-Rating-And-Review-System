@@ -17,13 +17,23 @@ const Navbar = () => {
     return () => window.removeEventListener('storage', check);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('user');
+ const handleLogout = async () => {
+  try {
+    await fetch("http://localhost:5000/auth/logout", {
+      method: "POST",
+      credentials: "include", // 🍪 REQUIRED
+    });
+
+    // UI cleanup (not security)
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("user");
+
     setIsLogged(false);
-    navigate('/auth');
-  };
+    navigate("/auth");
+  } catch (err) {
+    console.error("Logout failed", err);
+  }
+};
 
   // Helper to check active route
   const isActive = (path) => location.pathname === path;
@@ -34,6 +44,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           
           {/* LOGO */}
+          
           <div className="flex items-center shrink-0">
             <Link to="/" className="text-2xl font-black tracking-tighter hover:opacity-80 transition-opacity">
               Rate<span className="text-green-500">Right</span>
