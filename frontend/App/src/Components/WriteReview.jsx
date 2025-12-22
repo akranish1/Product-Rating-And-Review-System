@@ -38,7 +38,7 @@ const token = localStorage.getItem("isLoggedIn") === "true";
       form.append("review", review.trim());
       images.forEach((file) => form.append("images", file));
 
-      const res = await fetch("http://localhost:5000/write-review", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/write-review`, {
         method: "POST",
          credentials: "include",
         body: form,

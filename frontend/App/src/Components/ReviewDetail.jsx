@@ -12,7 +12,7 @@ const ReviewDetail = () => {
   useEffect(() => {
     const fetchReview = async () => {
       try {
-        const res = await fetch("http://localhost:5000/reviews");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/reviews`);
         const data = await res.json();
         const found = data.find((r) => String(r._id) === String(id));
         setReview(found || null);
@@ -30,7 +30,7 @@ const ReviewDetail = () => {
     if (typeof img !== 'string') return null;
     if (img.startsWith('data:')) return img;
     if (img.startsWith('http')) return img;
-    if (img.startsWith('/')) return `http://localhost:5000${img}`;
+    if (img.startsWith('/')) return `${import.meta.env.VITE_API_URL}${img}`;
     return img;
   };
 

@@ -22,7 +22,7 @@ const ReviewPage = () => {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      let url = "http://localhost:5000/reviews?";
+      let url = `${import.meta.env.VITE_API_URL}/reviews?`;
       if (category) url += `category=${category}&`;
       if (rating) url += `rating=${rating}`;
       if (search) url += `q=${encodeURIComponent(search)}&`;
@@ -39,7 +39,7 @@ const ReviewPage = () => {
   const getImageSrc = (img) => {
     if (!img) return null;
     if (img.startsWith("http")) return img;
-    if (img.startsWith("/")) return `http://localhost:5000${img}`;
+    if (img.startsWith("/")) return `${import.meta.env.VITE_API_URL}${img}`;
     return img;
   };
 

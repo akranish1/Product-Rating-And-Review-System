@@ -7,7 +7,7 @@ const RecentReview = ({ reviews }) => {
     if (typeof img !== 'string') return null;
     if (img.startsWith('data:')) return img;
     if (img.startsWith('http')) return img;
-    if (img.startsWith('/')) return `http://localhost:5000${img}`;
+    if (img.startsWith('/')) return `${import.meta.env.VITE_API_URL}${img}`;
     return img;
   };
   return (
