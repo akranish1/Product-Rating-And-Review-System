@@ -22,7 +22,7 @@ const Home = () => {
       if (selectedCategory !== "All") params.append("category", selectedCategory);
       if (selectedRating !== "All") params.append("rating", selectedRating);
 
-      const url = `http://localhost:5000/reviews?${params.toString()}`;
+      const url = `${import.meta.env.VITE_API_URL}/reviews?${params.toString()}`;
 
       const res = await fetch(url);
       const data = await res.json();
