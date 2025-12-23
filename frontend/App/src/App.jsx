@@ -35,7 +35,7 @@ function App() {
 
         {/* Route WITHOUT navbar + footer */}
         <Route path="/auth" element={<Login />} />
-        <Route path="/auth/signup" element={<SignUp/>} />
+        <Route path="/auth/signupx" element={<SignUp/>} />
 
       </Routes>
     </BrowserRouter>
