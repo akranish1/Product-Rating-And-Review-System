@@ -18,11 +18,7 @@ const cookieParser = require("cookie-parser");
 const app = express();
 app.use(cookieParser());
 
-app.use(express.static("dist"));
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
 
 app.use(cors({
   origin: "https://product-rating-and-review-system-1.onrender.com", // exact frontend origin
