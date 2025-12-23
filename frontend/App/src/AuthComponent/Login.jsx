@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -126,13 +127,13 @@ const Login = () => {
                 </form>
 
                 <div className="mt-8 pt-6 border-t border-white/10 text-center">
-                    <p className="text-gray-400 text-sm">
-                        Don't have an account?{' '}
-                        <a href="/auth/signupx" className="text-white font-medium hover:underline">
-                            Sign up for free
-                        </a>
-                    </p>
-                </div>
+  <p className="text-gray-400 text-sm">
+    Don't have an account?{' '}
+    <Link to="/auth/signup" className="text-white font-medium hover:underline">
+      Sign up for free
+    </Link>
+  </p>
+</div>
             </div>
 
             <div className="absolute bottom-6 w-full text-center text-white/20 text-xs">
