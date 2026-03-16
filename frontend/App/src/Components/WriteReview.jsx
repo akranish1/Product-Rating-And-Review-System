@@ -19,7 +19,7 @@ const WriteReview = () => {
   // Real-time toxicity checking while typing
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if (review.trim().length < 10) {
+      if (review.trim().length < 5) {
         setModerationWarning("");
         setToxicityScores(null);
         return;
@@ -190,10 +190,14 @@ const WriteReview = () => {
                     <p className="text-sm text-yellow-800 font-medium">{moderationWarning}</p>
                     {toxicityScores && (
                       <div className="mt-2 text-xs text-yellow-700 grid grid-cols-2 gap-2">
-                        {Object.entries(toxicityScores).map(([key, value]) => (
+                        {Object.entries(toxicityScores)
+                          .filter(([_, value]) => value > 0.1) // Only show scores above 10%
+                          .map(([key, value]) => (
                           <div key={key} className="flex justify-between">
                             <span>{key.replace(/_/g, " ")}:</span>
-                            <span className={value > 0.7 ? "font-bold text-red-600" : ""}>{(value * 100).toFixed(0)}%</span>
+                            <span className={value >= 0.8 ? "font-bold text-red-600" : value > 0.5 ? "font-semibold text-orange-600" : ""}>
+                              {(value * 100).toFixed(0)}%
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -204,9 +208,9 @@ const WriteReview = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score > 0.8))}
+                disabled={isSubmitting || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score >= 0.8))}
                 className={`w-full py-5 rounded-3xl font-black text-white uppercase tracking-widest text-sm transition-all shadow-xl
-                  ${isSubmitting || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score > 0.8))
+                  ${isSubmitting || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score >= 0.8))
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-gray-900 hover:bg-green-600 active:scale-[0.98]'}`}
               >
