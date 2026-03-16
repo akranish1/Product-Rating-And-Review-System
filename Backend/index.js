@@ -21,6 +21,12 @@ app.use(cookieParser());
 
 
 // configure CORS to accept both production frontend and local dev server
+app.use(
+  cors({
+    origin: "https://product-rating-and-review-system-1.onrender.com",
+    credentials: true
+  })
+);
 const allowedOrigins = [
   process.env.FRONTEND_URL || "https://product-rating-and-review-system-1.onrender.com",
   "http://localhost:5173",
