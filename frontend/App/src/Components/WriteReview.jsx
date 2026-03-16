@@ -14,39 +14,63 @@ const WriteReview = () => {
   // AI Moderation States
   const [isToxic, setIsToxic] = useState(false);
   const [moderationLoading, setModerationLoading] = useState(false);
-  const worker = useRef(null);
+  const [lastAnalyzedText, setLastAnalyzedText] = useState("");
+  const moderationTimeout = useRef(null);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("isLoggedIn") === "true";
 
-  // Initialize Web Worker
+  // Initialize Web Worker (removed - using backend API now)
   useEffect(() => {
-    worker.current = new Worker('/worker.js', { type: 'module' });
-
-    worker.current.onmessage = (event) => {
-      const { result } = event.data;
-      const toxicScore = result.find(r => r.label === 'toxic')?.score || 0;
-      
-      setIsToxic(toxicScore > 0.7); // Threshold for blocking
-      setModerationLoading(false);
-    };
-
-    return () => worker.current.terminate();
+    // Worker no longer needed - using backend moderation
   }, []);
 
-  // Analyze toxicity when review text changes (debounced slightly)
+  // Analyze toxicity when review text changes (debounced)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (review.trim().length > 5) {
-        setModerationLoading(true);
-        worker.current.postMessage({ text: review });
-      } else {
-        setIsToxic(false);
-      }
-    }, 500); // 500ms debounce to save battery/perf
+    if (moderationTimeout.current) {
+      clearTimeout(moderationTimeout.current);
+    }
 
-    return () => clearTimeout(timer);
-  }, [review]);
+    moderationTimeout.current = setTimeout(async () => {
+      if (review.trim().length > 10 && review.trim() !== lastAnalyzedText) {
+        setModerationLoading(true);
+        setLastAnalyzedText(review.trim());
+
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/moderate-text`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: review.trim() }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            setIsToxic(data.isToxic);
+          } else {
+            // If moderation fails, allow the review (fail-open)
+            setIsToxic(false);
+          }
+        } catch (error) {
+          console.error("Moderation error:", error);
+          setIsToxic(false); // Fail-open on error
+        } finally {
+          setModerationLoading(false);
+        }
+      } else if (review.trim().length <= 10) {
+        setIsToxic(false);
+        setModerationLoading(false);
+      }
+    }, 1500); // 1.5 second debounce
+
+    return () => {
+      if (moderationTimeout.current) {
+        clearTimeout(moderationTimeout.current);
+      }
+    };
+  }, [review, lastAnalyzedText]);
 
   if (!token) {
     return (
@@ -65,9 +89,10 @@ const WriteReview = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isToxic) return; // Guard clause
 
     setIsSubmitting(true);
+    setModerationLoading(true); // Show moderation loading during submit
+
     try {
       const form = new FormData();
       form.append("product", product.trim());
@@ -88,12 +113,17 @@ const WriteReview = () => {
         return;
       }
 
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: "Failed to submit review" }));
+        throw new Error(errorData.error || "Failed to submit review");
+      }
+
       navigate("/");
     } catch (err) {
-      alert("Submission failed. Please try again.");
+      alert(err.message || "Submission failed. Please try again.");
     } finally {
       setIsSubmitting(false);
+      setModerationLoading(false);
     }
   };
 
@@ -184,11 +214,11 @@ const WriteReview = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting || isToxic}
+                disabled={isSubmitting}
                 className={`w-full py-5 rounded-3xl font-black text-white uppercase tracking-widest text-sm transition-all shadow-xl
-                  ${(isSubmitting || isToxic) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-green-600 active:scale-[0.98]'}`}
+                  ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-green-600 active:scale-[0.98]'}`}
               >
-                {isSubmitting ? 'Publishing...' : isToxic ? 'Review Blocked' : 'Publish Review'}
+                {isSubmitting ? 'Publishing...' : 'Publish Review'}
               </button>
             </form>
           </div>

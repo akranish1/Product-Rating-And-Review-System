@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import RecentReview from "./RecentReview";
-import { useNavigate } from "react-router-dom";
 import Carousel from "./Carousel";
 import HomepBanner from "./HomepBanner";
 import HomepWriteAreview from "./HomepWriteAreview";
@@ -9,22 +8,14 @@ import Faq from "./Faq";
 
 const Home = () => {
   const [reviews, setReviews] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedRating, setSelectedRating] = useState("All");
-  const navigate = useNavigate();
 
   // fetch reviews from backend
  useEffect(() => {
   const fetchReviews = async () => {
     try {
-      const params = new URLSearchParams();
-
-      if (selectedCategory !== "All") params.append("category", selectedCategory);
-      if (selectedRating !== "All") params.append("rating", selectedRating);
-
       const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
       if (!import.meta.env.VITE_API_URL) console.warn("VITE_API_URL not defined; defaulting to http://localhost:5000");
-      const url = `${baseUrl}/reviews?${params.toString()}`;
+      const url = `${baseUrl}/reviews`;
 
       const res = await fetch(url);
       const contentType = res.headers.get("content-type") || "";
@@ -49,7 +40,7 @@ const Home = () => {
   };
 
   fetchReviews();
-}, [selectedCategory, selectedRating]);
+}, []);
 
 
 

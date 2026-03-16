@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ReviewPage = () => {
@@ -21,9 +21,9 @@ const ReviewPage = () => {
     }, 400); // debounce search/page changes
 
     return () => clearTimeout(timer);
-  }, [category, rating, search, page]);
+  }, [category, rating, search, page, fetchReviews]);
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     setLoading(true);
     try {
       setError(null);
@@ -55,7 +55,7 @@ const ReviewPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [category, rating, search, page, limit]);
 
   const getImageSrc = (img) => {
     if (!img) return null;
