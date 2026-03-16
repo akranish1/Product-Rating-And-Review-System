@@ -1,5 +1,5 @@
 // public/worker.js
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
+import { pipeline, env } from '@huggingface/transformers';
 
 env.allowLocalModels = false;
 let classifier;
@@ -9,6 +9,7 @@ self.onmessage = async (event) => {
   if (!text || text.length < 5) return;
 
   if (!classifier) {
+    // Load the toxic-bert model for real-time content moderation
     classifier = await pipeline('text-classification', 'Xenova/toxic-bert');
   }
 

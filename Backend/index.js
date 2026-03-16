@@ -23,7 +23,9 @@ app.use(cookieParser());
 // configure CORS to accept both production frontend and local dev server
 app.use(
   cors({
-    origin: "https://product-rating-and-review-system-1.onrender.com",
+    origin: process.env.NODE_ENV === "production"
+      ? "https://product-rating-and-review-system-1.onrender.com"
+      : ["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],
     credentials: true
   })
 );
@@ -157,8 +159,8 @@ app.post("/auth/signup", async (req, res) => {
     // 🍪 SET HTTP-ONLY COOKIE
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,        // true in production (HTTPS)
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",        // true in production (HTTPS)
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -210,8 +212,8 @@ app.post("/auth/login", async (req, res) => {
     // 🍪 SET HTTP-ONLY COOKIE
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,        // true in prod
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production", // Only secure in production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

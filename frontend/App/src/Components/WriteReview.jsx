@@ -15,84 +15,47 @@ const WriteReview = () => {
   const [isToxic, setIsToxic] = useState(false);
   const [moderationLoading, setModerationLoading] = useState(false);
   const [lastAnalyzedText, setLastAnalyzedText] = useState("");
-  const moderationTimeout = useRef(null);
+  const worker = useRef(null);
 
   const navigate = useNavigate();
-  const token = localStorage.getItem("isLoggedIn") === "true";
 
-  // Initialize Web Worker (removed - using backend API now)
+  // Initialize Web Worker for client-side AI moderation
   useEffect(() => {
-    // Worker no longer needed - using backend moderation
+    worker.current = new Worker('/worker.js', { type: 'module' });
+
+    worker.current.onmessage = (event) => {
+      const { result } = event.data;
+      const toxicScore = result.find(r => r.label === 'toxic')?.score || 0;
+
+      setIsToxic(toxicScore > 0.7); // Threshold for blocking
+      setModerationLoading(false);
+    };
+
+    return () => worker.current.terminate();
   }, []);
 
   // Analyze toxicity when review text changes (debounced)
   useEffect(() => {
-    if (moderationTimeout.current) {
-      clearTimeout(moderationTimeout.current);
-    }
-
-    moderationTimeout.current = setTimeout(async () => {
+    const timer = setTimeout(() => {
       if (review.trim().length > 10 && review.trim() !== lastAnalyzedText) {
         setModerationLoading(true);
         setLastAnalyzedText(review.trim());
-
-        try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/moderate-text`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ text: review.trim() }),
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            setIsToxic(data.isToxic);
-          } else {
-            // If moderation fails, allow the review (fail-open)
-            setIsToxic(false);
-          }
-        } catch (error) {
-          console.error("Moderation error:", error);
-          setIsToxic(false); // Fail-open on error
-        } finally {
-          setModerationLoading(false);
-        }
+        worker.current.postMessage({ text: review.trim() });
       } else if (review.trim().length <= 10) {
         setIsToxic(false);
         setModerationLoading(false);
       }
-    }, 1500); // 1.5 second debounce
+    }, 1000); // 1 second debounce for real-time feedback
 
-    return () => {
-      if (moderationTimeout.current) {
-        clearTimeout(moderationTimeout.current);
-      }
-    };
+    return () => clearTimeout(timer);
   }, [review, lastAnalyzedText]);
 
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="bg-white p-10 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] text-center max-w-sm border border-gray-900">
-          <div className="text-5xl mb-6">🔒</div>
-          <h2 className="text-2xl font-black text-gray-900 mb-4">Identity Required</h2>
-          <p className="text-gray-500 font-medium mb-8">Please sign in to share your product experience.</p>
-          <button onClick={() => navigate("/auth")} className="w-full bg-green-600 text-white font-bold py-4 rounded-2xl hover:bg-green-700 transition-all">
-            Sign In Now
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isToxic) return; // Guard clause
 
     setIsSubmitting(true);
-    setModerationLoading(true); // Show moderation loading during submit
-
     try {
       const form = new FormData();
       form.append("product", product.trim());
@@ -123,7 +86,6 @@ const WriteReview = () => {
       alert(err.message || "Submission failed. Please try again.");
     } finally {
       setIsSubmitting(false);
-      setModerationLoading(false);
     }
   };
 
