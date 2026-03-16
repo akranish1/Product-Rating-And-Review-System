@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const WriteReview = () => {
@@ -10,50 +10,11 @@ const WriteReview = () => {
   const [previews, setPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  
-  // AI Moderation States
-  const [isToxic, setIsToxic] = useState(false);
-  const [moderationLoading, setModerationLoading] = useState(false);
-  const [lastAnalyzedText, setLastAnalyzedText] = useState("");
-  const worker = useRef(null);
 
   const navigate = useNavigate();
 
-  // Initialize Web Worker for client-side AI moderation
-  useEffect(() => {
-    worker.current = new Worker('/worker.js', { type: 'module' });
-
-    worker.current.onmessage = (event) => {
-      const { result } = event.data;
-      const toxicScore = result.find(r => r.label === 'toxic')?.score || 0;
-
-      setIsToxic(toxicScore > 0.7); // Threshold for blocking
-      setModerationLoading(false);
-    };
-
-    return () => worker.current.terminate();
-  }, []);
-
-  // Analyze toxicity when review text changes (debounced)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (review.trim().length > 10 && review.trim() !== lastAnalyzedText) {
-        setModerationLoading(true);
-        setLastAnalyzedText(review.trim());
-        worker.current.postMessage({ text: review.trim() });
-      } else if (review.trim().length <= 10) {
-        setIsToxic(false);
-        setModerationLoading(false);
-      }
-    }, 1000); // 1 second debounce for real-time feedback
-
-    return () => clearTimeout(timer);
-  }, [review, lastAnalyzedText]);
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isToxic) return; // Guard clause
 
     setIsSubmitting(true);
     try {
@@ -100,7 +61,7 @@ const WriteReview = () => {
         </button>
 
         <div className="bg-white rounded-[40px] shadow-[0_30px_100px_rgba(15,23,42,0.1)] border border-gray-200 overflow-hidden flex flex-col lg:flex-row">
-          
+
           <div className="flex-[1.5] p-8 md:p-16">
             <header className="mb-10">
               <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-2">Write Review</h1>
@@ -152,26 +113,17 @@ const WriteReview = () => {
                 </div>
               </div>
 
-              {/* Review Textarea + AI Status */}
+              {/* Review Textarea */}
               <div>
-                <div className="flex justify-between items-center mb-3 ml-1">
-                    <label className="text-xs font-black text-gray-800 uppercase tracking-widest">Detailed Review</label>
-                    {moderationLoading && <span className="text-[10px] text-blue-500 font-bold animate-pulse">AI ANALYZING...</span>}
-                </div>
+                <label className="text-xs font-black text-gray-800 uppercase tracking-widest mb-3 block ml-1">Detailed Review</label>
                 <textarea
                   placeholder="What did you like or dislike?"
                   value={review}
                   onChange={(e) => setReview(e.target.value)}
                   rows={6}
-                  className={`w-full px-6 py-5 border-2 rounded-3xl outline-none transition-all text-gray-900 font-medium leading-relaxed resize-none
-                    ${isToxic ? 'border-red-500 bg-red-50' : 'bg-gray-50 border-gray-100 focus:border-green-500 focus:bg-white'}`}
+                  className="w-full px-6 py-5 bg-gray-50 border-2 border-gray-100 rounded-3xl focus:border-green-500 focus:bg-white outline-none transition-all text-gray-900 font-medium leading-relaxed resize-none"
                   required
                 />
-                {isToxic && (
-                  <p className="mt-3 text-sm text-red-600 font-bold flex items-center gap-2">
-                    <span>⚠️</span> Please avoid using abusive or hateful language to keep our community safe.
-                  </p>
-                )}
               </div>
 
               <button

@@ -21,7 +21,7 @@ const ReviewPage = () => {
     }, 400); // debounce search/page changes
 
     return () => clearTimeout(timer);
-  }, [category, rating, search, page, fetchReviews]);
+  }, [category, rating, search, page]);
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);

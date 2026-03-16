@@ -53,6 +53,14 @@ const RecentReview = ({ reviews }) => {
           </div>
         ))}
       </div>
+      <div className="mt-6 text-center">
+        <button
+          onClick={() => navigate('/review')}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+        >
+          View All Reviews
+        </button>
+      </div>
     </div>
   );
 };
