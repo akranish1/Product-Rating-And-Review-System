@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const WriteReview = () => {
@@ -10,8 +10,50 @@ const WriteReview = () => {
   const [previews, setPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [moderationWarning, setModerationWarning] = useState("");
+  const [toxicityScores, setToxicityScores] = useState(null);
+  const [isCheckingToxicity, setIsCheckingToxicity] = useState(false);
 
   const navigate = useNavigate();
+
+  // Real-time toxicity checking while typing
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (review.trim().length < 10) {
+        setModerationWarning("");
+        setToxicityScores(null);
+        return;
+      }
+
+      setIsCheckingToxicity(true);
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/check-review`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ review: review.trim() })
+        });
+
+        const data = await res.json();
+        setToxicityScores(data.scores);
+
+        if (!data.allowed) {
+          const warnings = data.violatedCategories?.map(v =>
+            `${v.category.replace(/_/g, " ")}: ${(v.score * 100).toFixed(0)}%`
+          ).join(", ");
+          setModerationWarning(`⚠️ Potentially offensive content detected: ${warnings}`);
+        } else {
+          setModerationWarning("");
+        }
+      } catch (err) {
+        console.error("Toxicity check error:", err);
+        setModerationWarning("");
+      } finally {
+        setIsCheckingToxicity(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [review]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,12 +81,20 @@ const WriteReview = () => {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: "Failed to submit review" }));
-        throw new Error(errorData.error || "Failed to submit review");
+        
+        // Format moderation error details if present
+        let errorMsg = errorData.error || "Failed to submit review";
+        if (errorData.details) {
+          const details = errorData.details.map(d => `${d.category}: ${d.message}`).join(", ");
+          errorMsg = `${errorMsg}\n\n${details}`;
+        }
+        
+        throw new Error(errorMsg);
       }
 
       navigate("/");
     } catch (err) {
-      alert(err.message || "Submission failed. Please try again.");
+      setError(err.message || "Submission failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -67,6 +117,12 @@ const WriteReview = () => {
               <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-2">Write Review</h1>
               <p className="text-gray-500 font-medium">Be descriptive to help the community.</p>
             </header>
+
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded">
+                <p className="text-sm text-red-800 font-medium whitespace-pre-wrap">{error}</p>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Product Name */}
@@ -115,7 +171,10 @@ const WriteReview = () => {
 
               {/* Review Textarea */}
               <div>
-                <label className="text-xs font-black text-gray-800 uppercase tracking-widest mb-3 block ml-1">Detailed Review</label>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-black text-gray-800 uppercase tracking-widest block ml-1">Detailed Review</label>
+                  {isCheckingToxicity && <span className="text-xs text-gray-500">Checking content...</span>}
+                </div>
                 <textarea
                   placeholder="What did you like or dislike?"
                   value={review}
@@ -124,13 +183,32 @@ const WriteReview = () => {
                   className="w-full px-6 py-5 bg-gray-50 border-2 border-gray-100 rounded-3xl focus:border-green-500 focus:bg-white outline-none transition-all text-gray-900 font-medium leading-relaxed resize-none"
                   required
                 />
+                
+                {/* Moderation Warning */}
+                {moderationWarning && (
+                  <div className="mt-3 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                    <p className="text-sm text-yellow-800 font-medium">{moderationWarning}</p>
+                    {toxicityScores && (
+                      <div className="mt-2 text-xs text-yellow-700 grid grid-cols-2 gap-2">
+                        {Object.entries(toxicityScores).map(([key, value]) => (
+                          <div key={key} className="flex justify-between">
+                            <span>{key.replace(/_/g, " ")}:</span>
+                            <span className={value > 0.7 ? "font-bold text-red-600" : ""}>{(value * 100).toFixed(0)}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score > 0.8))}
                 className={`w-full py-5 rounded-3xl font-black text-white uppercase tracking-widest text-sm transition-all shadow-xl
-                  ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-green-600 active:scale-[0.98]'}`}
+                  ${isSubmitting || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score > 0.8))
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gray-900 hover:bg-green-600 active:scale-[0.98]'}`}
               >
                 {isSubmitting ? 'Publishing...' : 'Publish Review'}
               </button>

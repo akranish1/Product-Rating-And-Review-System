@@ -12,6 +12,7 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const Review = require("./models/Review");
 const authMiddleware = require("./middleware/authMiddleware");
+const { moderationMiddleware } = require("./middleware/moderationMiddleware");
 const reviewRoutes = require("./Routes/Review");
 const cookieParser = require("cookie-parser");
 
@@ -95,6 +96,7 @@ app.use("/reviews", reviewRoutes);
 app.post(
   "/write-review",
   authMiddleware,
+  moderationMiddleware,
   upload.array("images", 5),
   async (req, res) => {
     try {
@@ -243,6 +245,29 @@ app.post("/auth/logout", (req, res) => {
   });
 
   res.status(200).json({ message: "Logged out successfully" });
+});
+
+// MODERATION CHECK ENDPOINT (for real-time checking while typing)
+app.post("/check-review", async (req, res) => {
+  try {
+    const { review } = req.body;
+
+    if (!review || review.trim().length === 0) {
+      return res.json({ allowed: true, scores: {} });
+    }
+
+    const { checkToxicity } = require("./middleware/moderationMiddleware");
+    const moderation = await checkToxicity(review);
+
+    res.json({
+      allowed: !moderation.flagged,
+      scores: moderation.scores,
+      violatedCategories: moderation.violatedCategories || []
+    });
+  } catch (err) {
+    console.error("Check review error:", err);
+    res.json({ allowed: true, scores: {} }); // Fail open
+  }
 });
 
 /* =========================
