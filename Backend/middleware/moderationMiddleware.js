@@ -7,16 +7,11 @@ const axios = require("axios");
  */
 async function checkToxicity(text) {
   try {
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
-    if (!OPENAI_API_KEY) {
-      console.warn("OPENAI_API_KEY not set. Skipping moderation check.");
-      return { flagged: false, scores: {}, violatedCategories: [] };
-    }
+    const normalizedText = (text || "").toLowerCase();
 
     // For testing purposes, if the text contains certain words, flag it
     const testHatefulWords = ['fuck', 'asshole', 'shit', 'damn', 'hate', 'kill', 'murder', 'die', 'threat', 'violence', 'rape', 'nigger', 'faggot'];
-    const hasHatefulContent = testHatefulWords.some(word => text.toLowerCase().includes(word));
+    const hasHatefulContent = testHatefulWords.some((word) => normalizedText.includes(word));
 
     if (hasHatefulContent) {
       console.log("Detected hateful content via keyword check:", text.substring(0, 50) + "...");
@@ -24,19 +19,19 @@ async function checkToxicity(text) {
       const violatedCategories = [];
 
       // Check for different types of content
-      if (text.toLowerCase().includes('asshole') || text.toLowerCase().includes('fuck') || text.toLowerCase().includes('shit')) {
+      if (normalizedText.includes('asshole') || normalizedText.includes('fuck') || normalizedText.includes('shit')) {
         scores.harassment = 0.8;
         violatedCategories.push({ category: "harassment", score: 0.8, threshold: 0.05 });
       }
-      if (text.toLowerCase().includes('kill') || text.toLowerCase().includes('murder') || text.toLowerCase().includes('die') || text.toLowerCase().includes('violence')) {
+      if (normalizedText.includes('kill') || normalizedText.includes('murder') || normalizedText.includes('die') || normalizedText.includes('violence')) {
         scores.violence = 0.9;
         violatedCategories.push({ category: "violence", score: 0.9, threshold: 0.05 });
       }
-      if (text.toLowerCase().includes('hate') || text.toLowerCase().includes('damn')) {
+      if (normalizedText.includes('hate') || normalizedText.includes('damn')) {
         scores.hate = 0.7;
         violatedCategories.push({ category: "hate", score: 0.7, threshold: 0.05 });
       }
-      if (text.toLowerCase().includes('rape') || text.toLowerCase().includes('nigger') || text.toLowerCase().includes('faggot')) {
+      if (normalizedText.includes('rape') || normalizedText.includes('nigger') || normalizedText.includes('faggot')) {
         scores.hate = 0.95;
         scores.harassment = 0.95;
         violatedCategories.push({ category: "hate", score: 0.95, threshold: 0.05 });
@@ -48,6 +43,13 @@ async function checkToxicity(text) {
         scores,
         violatedCategories
       };
+    }
+
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+    if (!OPENAI_API_KEY) {
+      console.warn("OPENAI_API_KEY not set. Falling back to keyword moderation only.");
+      return { flagged: false, scores: {}, violatedCategories: [] };
     }
 
     console.log("Making OpenAI API call for text:", text.substring(0, 50) + "...");
