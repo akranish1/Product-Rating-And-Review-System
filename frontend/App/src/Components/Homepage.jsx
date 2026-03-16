@@ -22,12 +22,27 @@ const Home = () => {
       if (selectedCategory !== "All") params.append("category", selectedCategory);
       if (selectedRating !== "All") params.append("rating", selectedRating);
 
-      const url = `${import.meta.env.VITE_API_URL}/reviews?${params.toString()}`;
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      if (!import.meta.env.VITE_API_URL) console.warn("VITE_API_URL not defined; defaulting to http://localhost:5000");
+      const url = `${baseUrl}/reviews?${params.toString()}`;
 
       const res = await fetch(url);
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Expected JSON but received", text);
+        throw new Error("Invalid response from server");
+      }
       const data = await res.json();
 
-      setReviews(data);
+      // backend returns either an array or { total, reviews }
+      if (Array.isArray(data)) {
+        setReviews(data);
+      } else if (data && Array.isArray(data.reviews)) {
+        setReviews(data.reviews);
+      } else {
+        setReviews([]);
+      }
     } catch (err) {
       console.log(err);
     }

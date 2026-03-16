@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 const RecentReview = ({ reviews }) => {
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
   const navigate = useNavigate();
   const getImageSrc = (img) => {
     if (!img) return null;
@@ -14,7 +15,7 @@ const RecentReview = ({ reviews }) => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <h2 className="text-2xl font-semibold mb-4">Recent Reviews</h2>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
-        {reviews.slice(0, 4).map((item) => (
+        {safeReviews.slice(0, 4).map((item) => (
           <div
             key={item._id}
             role="button"

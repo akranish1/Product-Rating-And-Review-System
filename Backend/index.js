@@ -20,9 +20,26 @@ app.use(cookieParser());
 
 
 
+// configure CORS to accept both production frontend and local dev server
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "https://product-rating-and-review-system-1.onrender.com",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+];
 app.use(cors({
-  origin: "https://product-rating-and-review-system-1.onrender.com", // exact frontend origin
-  credentials: true
+  origin: (origin, callback) => {
+    // debug log
+    console.log("CORS check for origin:", origin);
+    // allow requests with no origin (e.g. mobile apps, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      console.log("--> origin allowed");
+      return callback(null, true);
+    }
+    console.log("--> origin not allowed");
+    callback(new Error("CORS policy: origin not allowed"));
+  },
+  credentials: true,
 }));
 app.use(express.json());
 

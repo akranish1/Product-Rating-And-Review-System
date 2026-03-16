@@ -8,29 +8,50 @@ const ReviewPage = () => {
   const [category, setCategory] = useState("");
   const [rating, setRating] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10); // fixed page size for now
+  const [total, setTotal] = useState(0);
+  const [error, setError] = useState(null);
 
 
+  //hook with debounce: refetch whenever filter, search or page changes
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchReviews();
-    }, 400); // debounce search
+    }, 400); // debounce search/page changes
 
     return () => clearTimeout(timer);
-  }, [category, rating, search]);
-
+  }, [category, rating, search, page]);
 
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      let url = `${import.meta.env.VITE_API_URL}/reviews?`;
+      setError(null);
+      // use environment variable if set, otherwise assume local backend running on 5000
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      if (!import.meta.env.VITE_API_URL) console.warn("VITE_API_URL not defined; defaulting to http://localhost:5000");
+      let url = `${baseUrl}/reviews?`;
       if (category) url += `category=${category}&`;
-      if (rating) url += `rating=${rating}`;
+      if (rating) url += `rating=${rating}&`;
       if (search) url += `q=${encodeURIComponent(search)}&`;
+      // pagination parameters
+      const offset = (page - 1) * limit;
+      url += `limit=${limit}&offset=${offset}`;
       const res = await fetch(url);
+      // validate JSON response
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Expected JSON but received", text);
+        throw new Error("Server returned non-JSON response");
+      }
       const data = await res.json();
-      setReviews(data);
+      // backend now returns { total, reviews }
+      setReviews(data.reviews || []);
+      setTotal(data.total || 0);
     } catch (err) {
       console.error(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -63,14 +84,14 @@ const ReviewPage = () => {
               type="text"
               placeholder="Search reviews..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               className="bg-white border border-slate-200 text-slate-700 text-sm 
              rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 
              outline-none shadow-sm transition-all"
             />
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
               className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all cursor-pointer"
             >
               <option value="">All Categories</option>
@@ -81,7 +102,7 @@ const ReviewPage = () => {
 
             <select
               value={rating}
-              onChange={(e) => setRating(e.target.value)}
+              onChange={(e) => { setRating(e.target.value); setPage(1); }}
               className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm transition-all cursor-pointer"
             >
               <option value="">All Ratings</option>
@@ -90,9 +111,9 @@ const ReviewPage = () => {
               <option value="3">3+ Stars</option>
             </select>
 
-            {(category || rating) && (
+            {(category || rating || search) && (
               <button
-                onClick={() => { setCategory(""); setRating("");   setSearch(""); }}
+                onClick={() => { setCategory(""); setRating(""); setSearch(""); setPage(1); }}
                 className="text-sm font-semibold text-slate-400 hover:text-red-500 px-2 transition-colors"
               >
                 Reset
@@ -102,6 +123,12 @@ const ReviewPage = () => {
         </div>
 
         {/* --- CONTENT SECTION --- */}
+        {/* show error if exists */}
+        {error && (
+          <div className="mb-6 text-red-600 font-medium text-center">
+            {error}
+          </div>
+        )}
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((n) => (
@@ -109,9 +136,10 @@ const ReviewPage = () => {
             ))}
           </div>
         ) : (
-          <div className="grid gap-6">
-            {reviews.map((review) => (
-              <div
+          <>
+            <div className="grid gap-6">
+              {reviews.map((review) => (
+                <div
                 key={review._id}
                 onClick={() => navigate(`/review/${review._id}`)}
                 className="group relative bg-white border border-slate-100 rounded-3xl p-6 md:p-8 
@@ -182,6 +210,35 @@ const ReviewPage = () => {
               </div>
             )}
           </div>
+
+          {/* --- PAGINATION CONTROLS --- */}
+          {total > limit && (
+            <div className="flex justify-between items-center mt-8">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 bg-white border rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-slate-500">
+                Page {page} of {Math.max(1, Math.ceil(total / limit))}
+              </span>
+              <span className="text-sm text-slate-500">
+                &nbsp;| Showing {(page - 1) * limit + 1} – {Math.min((page - 1) * limit + reviews.length, total)} of {total}
+              </span>
+              <button
+                onClick={() => {
+                  if (page < Math.ceil(total / limit)) setPage((p) => p + 1);
+                }}
+                disabled={page >= Math.ceil(total / limit)}
+                className="px-4 py-2 bg-white border rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>

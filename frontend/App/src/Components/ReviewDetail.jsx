@@ -12,10 +12,13 @@ const ReviewDetail = () => {
   useEffect(() => {
     const fetchReview = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/reviews`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/reviews/${id}`);
+        if (!res.ok) {
+          setReview(null);
+          return;
+        }
         const data = await res.json();
-        const found = data.find((r) => String(r._id) === String(id));
-        setReview(found || null);
+        setReview(data);
       } catch (err) {
         console.error(err);
       } finally {
