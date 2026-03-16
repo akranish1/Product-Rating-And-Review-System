@@ -203,7 +203,7 @@ app.post("/auth/logout", (req, res) => {
     secure: false, // true in production (HTTPS)
   });
   localStorage.removeItem("currentUser");
-
+  localStorage.removeITem("isLoggedIn");
   res.json({ message: "Logged out successfully" });
 });
 
