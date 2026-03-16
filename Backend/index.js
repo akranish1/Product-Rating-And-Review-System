@@ -204,7 +204,7 @@ app.post("/auth/login", async (req, res) => {
     // 🍪 SET HTTP-ONLY COOKIE
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,        // true in prod
+      secure: true,        // true in prod
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
