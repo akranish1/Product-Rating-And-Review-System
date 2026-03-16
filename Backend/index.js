@@ -96,8 +96,8 @@ app.use("/reviews", reviewRoutes);
 app.post(
   "/write-review",
   authMiddleware,
-  moderationMiddleware,
   upload.array("images", 5),
+  moderationMiddleware,
   async (req, res) => {
     try {
       const { product, category, rating, review } = req.body;

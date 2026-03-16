@@ -208,13 +208,13 @@ const WriteReview = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score >= 0.8))}
+                disabled={isSubmitting || isCheckingToxicity || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score >= 0.8))}
                 className={`w-full py-5 rounded-3xl font-black text-white uppercase tracking-widest text-sm transition-all shadow-xl
-                  ${isSubmitting || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score >= 0.8))
+                  ${isSubmitting || isCheckingToxicity || (moderationWarning && toxicityScores && Object.values(toxicityScores).some(score => score >= 0.8))
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-gray-900 hover:bg-green-600 active:scale-[0.98]'}`}
               >
-                {isSubmitting ? 'Publishing...' : 'Publish Review'}
+                {isSubmitting ? 'Publishing...' : isCheckingToxicity ? 'Checking content...' : 'Publish Review'}
               </button>
             </form>
           </div>

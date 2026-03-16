@@ -15,21 +15,38 @@ async function checkToxicity(text) {
     }
 
     // For testing purposes, if the text contains certain words, flag it
-    const testHatefulWords = ['fuck', 'asshole', 'shit', 'damn', 'hate'];
+    const testHatefulWords = ['fuck', 'asshole', 'shit', 'damn', 'hate', 'kill', 'murder', 'die', 'threat', 'violence', 'rape', 'nigger', 'faggot'];
     const hasHatefulContent = testHatefulWords.some(word => text.toLowerCase().includes(word));
 
     if (hasHatefulContent) {
       console.log("Detected hateful content via keyword check:", text.substring(0, 50) + "...");
+      const scores = {};
+      const violatedCategories = [];
+
+      // Check for different types of content
+      if (text.toLowerCase().includes('asshole') || text.toLowerCase().includes('fuck') || text.toLowerCase().includes('shit')) {
+        scores.harassment = 0.8;
+        violatedCategories.push({ category: "harassment", score: 0.8, threshold: 0.05 });
+      }
+      if (text.toLowerCase().includes('kill') || text.toLowerCase().includes('murder') || text.toLowerCase().includes('die') || text.toLowerCase().includes('violence')) {
+        scores.violence = 0.9;
+        violatedCategories.push({ category: "violence", score: 0.9, threshold: 0.05 });
+      }
+      if (text.toLowerCase().includes('hate') || text.toLowerCase().includes('damn')) {
+        scores.hate = 0.7;
+        violatedCategories.push({ category: "hate", score: 0.7, threshold: 0.05 });
+      }
+      if (text.toLowerCase().includes('rape') || text.toLowerCase().includes('nigger') || text.toLowerCase().includes('faggot')) {
+        scores.hate = 0.95;
+        scores.harassment = 0.95;
+        violatedCategories.push({ category: "hate", score: 0.95, threshold: 0.05 });
+        violatedCategories.push({ category: "harassment", score: 0.95, threshold: 0.05 });
+      }
+
       return {
         flagged: true,
-        scores: {
-          hate: 0.8,
-          harassment: 0.6
-        },
-        violatedCategories: [
-          { category: "hate", score: 0.8, threshold: 0.05 },
-          { category: "harassment", score: 0.6, threshold: 0.05 }
-        ]
+        scores,
+        violatedCategories
       };
     }
 
