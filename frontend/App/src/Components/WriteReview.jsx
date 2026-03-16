@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const WriteReview = () => {
@@ -9,8 +9,9 @@ const WriteReview = () => {
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-const token = localStorage.getItem("isLoggedIn") === "true";
+  const token = localStorage.getItem("isLoggedIn") === "true";
 
   if (!token) {
     return (
@@ -40,14 +41,14 @@ const token = localStorage.getItem("isLoggedIn") === "true";
 
       const res = await fetch(`${import.meta.env.VITE_API_URL}/write-review`, {
         method: "POST",
-         credentials: "include",
+        credentials: "include",
         body: form,
       });
       if (res.status === 401) {
-  localStorage.removeItem("isLoggedIn");
-  navigate("/auth");
-  return;
-}
+        localStorage.removeItem("isLoggedIn");
+        navigate("/auth");
+        return;
+      }
 
       if (!res.ok) throw new Error("Failed");
       navigate("/");
@@ -61,9 +62,9 @@ const token = localStorage.getItem("isLoggedIn") === "true";
   return (
     <div className="min-h-screen bg-[#F1F5F9] py-12 px-4">
       <div className="max-w-5xl mx-auto">
-        
+
         {/* Navigation */}
-        <button 
+        <button
           onClick={() => navigate("/")}
           className="mb-8 flex items-center gap-2 text-gray-700 font-bold hover:text-green-600 transition-colors bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200"
         >
@@ -71,7 +72,7 @@ const token = localStorage.getItem("isLoggedIn") === "true";
         </button>
 
         <div className="bg-white rounded-[40px] shadow-[0_30px_100px_rgba(15,23,42,0.1)] border border-gray-200 overflow-hidden flex flex-col lg:flex-row">
-          
+
           {/* LEFT SIDE: FORM (Main Content) */}
           <div className="flex-[1.5] p-8 md:p-16">
             <header className="mb-10">
@@ -160,17 +161,35 @@ const token = localStorage.getItem("isLoggedIn") === "true";
                 multiple
                 onChange={(e) => {
                   const files = Array.from(e.target.files || []);
+                  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+                  for (const file of files) {
+                    if (file.size > MAX_FILE_SIZE) {
+                      setError(`${file.name} exceeds 5MB limit`);
+                      e.target.value = "";
+                      return;
+                    }
+                  }
+
+                  setError(""); // clear error if valid
                   setImages(files);
-                  Promise.all(files.map((file) =>
-                    new Promise((res) => {
-                      const reader = new FileReader();
-                      reader.onload = () => res(reader.result);
-                      reader.readAsDataURL(file);
-                    })
-                  )).then(setPreviews);
+
+                  Promise.all(
+                    files.map(
+                      (file) =>
+                        new Promise((res) => {
+                          const reader = new FileReader();
+                          reader.onload = () => res(reader.result);
+                          reader.readAsDataURL(file);
+                        })
+                    )
+                  ).then(setPreviews);
                 }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
+              {error && (
+  <p className="text-red-500 mt-2 text-sm">{error}</p>
+)}
               <div className="text-4xl mb-4">🖼️</div>
               <p className="text-sm font-bold text-gray-300">Drop images here</p>
               <p className="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-tighter">or click to browse</p>
@@ -182,16 +201,16 @@ const token = localStorage.getItem("isLoggedIn") === "true";
                 <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border-2 border-gray-700 shadow-2xl">
                   <img src={src} className="w-full h-full object-cover" alt="preview" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                     <span className="text-[10px] font-bold uppercase tracking-widest">Selected</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Selected</span>
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="mt-10 p-6 bg-gray-800/50 rounded-2xl border border-gray-700">
-               <p className="text-xs text-gray-400 leading-relaxed italic">
-                 "Your honest feedback helps thousands of shoppers make the right decision. Thank you for contributing!"
-               </p>
+              <p className="text-xs text-gray-400 leading-relaxed italic">
+                "Your honest feedback helps thousands of shoppers make the right decision. Thank you for contributing!"
+              </p>
             </div>
           </div>
 

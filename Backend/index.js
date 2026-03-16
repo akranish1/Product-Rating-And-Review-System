@@ -50,19 +50,30 @@ connectDB().catch((err) => console.error("DB connect error", err));
 //FILE UPLOAD CONFIG
 
 const uploadsDir = path.join(__dirname, "uploads");
+
 if (!fsSync.existsSync(uploadsDir)) {
   fsSync.mkdirSync(uploadsDir, { recursive: true });
 }
 
 app.use("/uploads", express.static(uploadsDir));
 
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
 const storage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, uploadsDir),
-  filename: (_, file, cb) =>
-    cb(null, Date.now() + "-" + file.originalname.replace(/\s+/g, "_")),
+
+  filename: (_, file, cb) => {
+    const safeName = file.originalname.replace(/[^\w.]/g, "_");
+    cb(null, Date.now() + "-" + safeName);
+  }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: MAX_SIZE // max size per file
+  }
+});
 
 //REVIEWS ROUTES (MongoDB)
 
@@ -217,13 +228,11 @@ app.post("/auth/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "lax",
-    secure: false, // true in production (HTTPS)
+    secure: true, // use true in production (HTTPS)
   });
-  localStorage.removeItem("currentUser");
-  localStorage.removeITem("isLoggedIn");
-  res.json({ message: "Logged out successfully" });
-});
 
+  res.status(200).json({ message: "Logged out successfully" });
+});
 
 /* =========================
    SERVER START
