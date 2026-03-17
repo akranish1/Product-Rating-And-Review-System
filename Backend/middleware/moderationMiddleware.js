@@ -168,10 +168,11 @@ function mapModerationResult(result = {}) {
  * @param {string} text - The review text to check
  * @param {Object} options
  * @param {boolean} options.allowRemote - Whether OpenAI should be queried
+ * @param {boolean} options.forceRemote - Whether OpenAI should still be queried even if local moderation matches
  * @returns {Promise<Object>} - Returns { flagged: boolean, scores: {...}, violatedCategories: [...] }
  */
 async function checkToxicity(text, options = {}) {
-  const { allowRemote = true } = options;
+  const { allowRemote = true, forceRemote = false } = options;
   const trimmedText = (text || "").trim();
 
   try {
@@ -180,7 +181,7 @@ async function checkToxicity(text, options = {}) {
     }
 
     const localModeration = runLocalModeration(trimmedText);
-    if (localModeration.flagged) {
+    if (localModeration.flagged && !forceRemote) {
       return { ...localModeration, source: "local_keyword", degraded: false };
     }
 

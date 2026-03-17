@@ -36,6 +36,9 @@ const LOCAL_MODERATION_RULES = [
   { category: "sexual", score: 0.95, words: ["rape"] },
 ];
 
+const REMOTE_CHECK_MIN_LENGTH = 12;
+const REMOTE_CHECK_DEBOUNCE_MS = 1200;
+
 function getLocalModeration(reviewText) {
   const normalizedReview = reviewText.toLowerCase();
   const scores = {};
@@ -61,6 +64,12 @@ function getLocalModeration(reviewText) {
   };
 }
 
+function formatModerationWarning(violatedCategories = []) {
+  return violatedCategories
+    .map((violation) => `${violation.category.replace(/_/g, " ")}: ${(violation.score * 100).toFixed(0)}%`)
+    .join(", ");
+}
+
 const WriteReview = () => {
   const [product, setProduct] = useState("");
   const [category, setCategory] = useState("");
@@ -69,13 +78,26 @@ const WriteReview = () => {
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingToxicity, setIsCheckingToxicity] = useState(false);
   const [error, setError] = useState("");
   const [moderationWarning, setModerationWarning] = useState("");
   const [toxicityScores, setToxicityScores] = useState(null);
 
   const navigate = useNavigate();
 
-  const checkReviewModeration = (reviewText) => {
+  const applyModerationResult = (data) => {
+    setToxicityScores(data.scores || {});
+
+    if (!data.allowed) {
+      const warnings = formatModerationWarning(data.violatedCategories || []);
+      setModerationWarning(`Potentially offensive content detected: ${warnings}`);
+    } else {
+      setModerationWarning("");
+    }
+  };
+
+  const checkReviewModeration = async (reviewText, options = {}) => {
+    const { preferRemote = false } = options;
     const trimmedReview = reviewText.trim();
 
     if (trimmedReview.length < 5) {
@@ -84,26 +106,53 @@ const WriteReview = () => {
       return { allowed: true, scores: {}, violatedCategories: [] };
     }
 
-    const data = getLocalModeration(trimmedReview);
-    setToxicityScores(data.scores || {});
-
-    if (!data.allowed) {
-      const warnings = (data.violatedCategories || [])
-        .map((violation) => `${violation.category.replace(/_/g, " ")}: ${(violation.score * 100).toFixed(0)}%`)
-        .join(", ");
-
-      setModerationWarning(`Potentially offensive content detected: ${warnings}`);
-    } else {
-      setModerationWarning("");
+    const localData = getLocalModeration(trimmedReview);
+    if (!localData.allowed) {
+      applyModerationResult(localData);
+      return localData;
     }
 
-    return data;
+    if (!preferRemote && trimmedReview.length < REMOTE_CHECK_MIN_LENGTH) {
+      const safeResult = { allowed: true, scores: {}, violatedCategories: [] };
+      applyModerationResult(safeResult);
+      return safeResult;
+    }
+
+    try {
+      const res = await fetch(buildApiUrl("/check-review"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ review: trimmedReview }),
+      });
+      const data = await readJsonResponse(res);
+      applyModerationResult(data);
+      return data;
+    } catch (err) {
+      console.error("Realtime moderation check failed:", err);
+      const safeResult = { allowed: true, scores: {}, violatedCategories: [] };
+      applyModerationResult(safeResult);
+      return safeResult;
+    }
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      checkReviewModeration(review);
-    }, 250);
+    const trimmedReview = review.trim();
+    const localData = getLocalModeration(trimmedReview);
+
+    if (!trimmedReview || trimmedReview.length < 5 || !localData.allowed) {
+      void checkReviewModeration(review);
+      setIsCheckingToxicity(false);
+      return undefined;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsCheckingToxicity(true);
+      try {
+        await checkReviewModeration(review);
+      } finally {
+        setIsCheckingToxicity(false);
+      }
+    }, REMOTE_CHECK_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
   }, [review]);
@@ -126,7 +175,7 @@ const WriteReview = () => {
     setError("");
 
     try {
-      const moderationResult = checkReviewModeration(trimmedReview);
+      const moderationResult = await checkReviewModeration(trimmedReview, { preferRemote: true });
       if (!moderationResult.allowed) {
         setError("Cannot submit review with inappropriate content. Please revise your review.");
         return;
@@ -240,6 +289,7 @@ const WriteReview = () => {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-xs font-black text-gray-800 uppercase tracking-widest block ml-1">Detailed Review</label>
+                  {isCheckingToxicity && <span className="text-xs text-gray-500">Checking content...</span>}
                 </div>
                 <textarea
                   placeholder="What did you like or dislike?"
@@ -278,14 +328,16 @@ const WriteReview = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting || Boolean(moderationWarning)}
+                disabled={isSubmitting || isCheckingToxicity || Boolean(moderationWarning)}
                 className={`w-full py-5 rounded-3xl font-black text-white uppercase tracking-widest text-sm transition-all shadow-xl
-                  ${isSubmitting || moderationWarning
+                  ${isSubmitting || isCheckingToxicity || moderationWarning
                     ? "bg-red-400 cursor-not-allowed"
                     : "bg-gray-900 hover:bg-green-600 active:scale-[0.98]"}`}
               >
                 {isSubmitting
                   ? "Publishing..."
+                  : isCheckingToxicity
+                      ? "Checking content..."
                   : moderationWarning
                       ? "Content Blocked - Revise Review"
                       : "Publish Review"}

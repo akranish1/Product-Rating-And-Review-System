@@ -241,20 +241,26 @@ app.post("/auth/logout", (req, res) => {
 // MODERATION CHECK ENDPOINT (for real-time checking while typing)
 app.post("/check-review", async (req, res) => {
   try {
-    const { review } = req.body;
+    const { review, forceRemote } = req.body;
 
     if (!review || review.trim().length === 0) {
       return res.json({ allowed: true, scores: {} });
     }
 
     const { checkToxicity } = require("./middleware/moderationMiddleware");
-    const moderation = await checkToxicity(review, { allowRemote: false });
+    const moderation = await checkToxicity(review, {
+      allowRemote: true,
+      forceRemote: forceRemote === true,
+    });
 
     res.json({
       allowed: !moderation.flagged,
       scores: moderation.scores,
       violatedCategories: moderation.violatedCategories || [],
       source: moderation.source,
+      degraded: moderation.degraded || false,
+      providerStatus: moderation.providerStatus || null,
+      providerMessage: moderation.providerMessage || null,
     });
   } catch (err) {
     console.error("Check review error:", err);
