@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { buildApiUrl, buildAssetUrl, readJsonResponse } from "../lib/api";
 
 const ReviewPage = () => {
   const navigate = useNavigate();
@@ -27,10 +28,7 @@ const ReviewPage = () => {
     setLoading(true);
     try {
       setError(null);
-      // use environment variable if set, otherwise assume local backend running on 5000
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      if (!import.meta.env.VITE_API_URL) console.warn("VITE_API_URL not defined; defaulting to http://localhost:5000");
-      let url = `${baseUrl}/reviews?`;
+      let url = buildApiUrl("/reviews?");
       if (category) url += `category=${category}&`;
       if (rating) url += `rating=${rating}&`;
       if (search) url += `q=${encodeURIComponent(search)}&`;
@@ -38,14 +36,7 @@ const ReviewPage = () => {
       const offset = (page - 1) * limit;
       url += `limit=${limit}&offset=${offset}`;
       const res = await fetch(url);
-      // validate JSON response
-      const contentType = res.headers.get("content-type") || "";
-      if (!contentType.includes("application/json")) {
-        const text = await res.text();
-        console.error("Expected JSON but received", text);
-        throw new Error("Server returned non-JSON response");
-      }
-      const data = await res.json();
+      const data = await readJsonResponse(res);
       // backend now returns { total, reviews }
       setReviews(data.reviews || []);
       setTotal(data.total || 0);
@@ -60,8 +51,7 @@ const ReviewPage = () => {
   const getImageSrc = (img) => {
     if (!img) return null;
     if (img.startsWith("http")) return img;
-    if (img.startsWith("/")) return `${import.meta.env.VITE_API_URL}${img}`;
-    return img;
+    return buildAssetUrl(img);
   };
 
   return (

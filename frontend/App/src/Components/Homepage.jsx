@@ -5,6 +5,7 @@ import HomepBanner from "./HomepBanner";
 import HomepWriteAreview from "./HomepWriteAreview";
 import HomepTrustBanner from "./HomepTrustBanner";
 import Faq from "./Faq";
+import { buildApiUrl, readJsonResponse } from "../lib/api";
 
 const Home = () => {
   const [reviews, setReviews] = useState([]);
@@ -13,18 +14,8 @@ const Home = () => {
  useEffect(() => {
   const fetchReviews = async () => {
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      if (!import.meta.env.VITE_API_URL) console.warn("VITE_API_URL not defined; defaulting to http://localhost:5000");
-      const url = `${baseUrl}/reviews`;
-
-      const res = await fetch(url);
-      const contentType = res.headers.get("content-type") || "";
-      if (!contentType.includes("application/json")) {
-        const text = await res.text();
-        console.error("Expected JSON but received", text);
-        throw new Error("Invalid response from server");
-      }
-      const data = await res.json();
+      const res = await fetch(buildApiUrl("/reviews"));
+      const data = await readJsonResponse(res);
 
       // backend returns either an array or { total, reviews }
       if (Array.isArray(data)) {

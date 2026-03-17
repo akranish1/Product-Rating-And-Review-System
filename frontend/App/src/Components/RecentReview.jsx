@@ -1,15 +1,13 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { buildAssetUrl } from "../lib/api";
 const RecentReview = ({ reviews }) => {
   const safeReviews = Array.isArray(reviews) ? reviews : [];
   const navigate = useNavigate();
   const getImageSrc = (img) => {
     if (!img) return null;
     if (typeof img !== 'string') return null;
-    if (img.startsWith('data:')) return img;
-    if (img.startsWith('http')) return img;
-    if (img.startsWith('/')) return `${import.meta.env.VITE_API_URL}${img}`;
-    return img;
+    return buildAssetUrl(img);
   };
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

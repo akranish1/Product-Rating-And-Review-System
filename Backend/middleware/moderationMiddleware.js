@@ -74,6 +74,16 @@ function runLocalModeration(text) {
   const normalizedText = normalizeText(text);
   const violatedCategories = [];
   const scores = {};
+  const harassmentTerms = ["asshole", "fuck", "shit", "bitch", "bastard", "moron", "idiot", "stupid"];
+  const violenceTerms = ["kill", "murder", "threat", "violence", "shoot", "stab"];
+  const violentPhrases = [
+    "stop breathing",
+    "drop dead",
+    "go die",
+    "hope you die",
+    "hope you stop breathing",
+    "wish you were dead",
+  ];
 
   const addViolation = (category, score) => {
     const existing = violatedCategories.find((item) => item.category === category);
@@ -86,11 +96,14 @@ function runLocalModeration(text) {
     scores[category] = Math.max(scores[category] || 0, score);
   };
 
-  if (["asshole", "fuck", "shit", "bitch", "bastard"].some((word) => normalizedText.includes(word))) {
+  if (harassmentTerms.some((word) => normalizedText.includes(word))) {
     addViolation("harassment", 0.9);
   }
 
-  if (["kill", "murder", "threat", "violence", "shoot", "stab"].some((word) => normalizedText.includes(word))) {
+  if (
+    violenceTerms.some((word) => normalizedText.includes(word)) ||
+    violentPhrases.some((phrase) => normalizedText.includes(phrase))
+  ) {
     addViolation("violence", 0.95);
   }
 

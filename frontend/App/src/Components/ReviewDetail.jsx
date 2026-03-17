@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { buildApiUrl, buildAssetUrl, readJsonResponse } from "../lib/api";
 
 const ReviewDetail = () => {
   const { id } = useParams();
@@ -12,12 +13,12 @@ const ReviewDetail = () => {
   useEffect(() => {
     const fetchReview = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/reviews/${id}`);
+        const res = await fetch(buildApiUrl(`/reviews/${id}`));
         if (!res.ok) {
           setReview(null);
           return;
         }
-        const data = await res.json();
+        const data = await readJsonResponse(res);
         setReview(data);
       } catch (err) {
         console.error(err);
@@ -31,10 +32,7 @@ const ReviewDetail = () => {
   const getImageSrc = (img) => {
     if (!img) return null;
     if (typeof img !== 'string') return null;
-    if (img.startsWith('data:')) return img;
-    if (img.startsWith('http')) return img;
-    if (img.startsWith('/')) return `${import.meta.env.VITE_API_URL}${img}`;
-    return img;
+    return buildAssetUrl(img);
   };
 
   if (loading) return <div className="p-6">Loading...</div>;

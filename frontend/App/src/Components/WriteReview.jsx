@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { buildApiUrl, readJsonResponse } from "../lib/api";
 
 const LOCAL_BLOCKED_WORDS = [
   "fuck",
@@ -14,9 +15,23 @@ const LOCAL_BLOCKED_WORDS = [
   "faggot",
 ];
 
+const LOCAL_BLOCKED_PHRASES = [
+  "stop breathing",
+  "drop dead",
+  "go die",
+  "hope you die",
+  "hope you stop breathing",
+  "wish you were dead",
+];
+
 const LOCAL_MODERATION_RULES = [
   { category: "harassment", score: 0.8, words: ["fuck", "asshole", "shit"] },
-  { category: "violence", score: 0.9, words: ["kill", "murder", "threat", "violence"] },
+  {
+    category: "violence",
+    score: 0.95,
+    words: ["kill", "murder", "threat", "violence"],
+    phrases: LOCAL_BLOCKED_PHRASES,
+  },
   { category: "hate", score: 0.95, words: ["nigger", "faggot"] },
   { category: "sexual", score: 0.95, words: ["rape"] },
 ];
@@ -27,7 +42,10 @@ function getLocalModeration(reviewText) {
   const violatedCategories = [];
 
   for (const rule of LOCAL_MODERATION_RULES) {
-    if (rule.words.some((word) => normalizedReview.includes(word))) {
+    if (
+      rule.words.some((word) => normalizedReview.includes(word)) ||
+      (rule.phrases || []).some((phrase) => normalizedReview.includes(phrase))
+    ) {
       scores[rule.category] = Math.max(scores[rule.category] || 0, rule.score);
       violatedCategories.push({
         category: rule.category,
@@ -95,7 +113,9 @@ const WriteReview = () => {
 
     const trimmedReview = review.trim();
     const normalizedReview = trimmedReview.toLowerCase();
-    const hasHatefulContent = LOCAL_BLOCKED_WORDS.some((word) => normalizedReview.includes(word));
+    const hasHatefulContent =
+      LOCAL_BLOCKED_WORDS.some((word) => normalizedReview.includes(word)) ||
+      LOCAL_BLOCKED_PHRASES.some((phrase) => normalizedReview.includes(phrase));
 
     if (hasHatefulContent) {
       setError("Your review contains inappropriate content. Please revise your review.");
@@ -119,7 +139,7 @@ const WriteReview = () => {
       form.append("review", trimmedReview);
       images.forEach((file) => form.append("images", file));
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/write-review`, {
+      const res = await fetch(buildApiUrl("/write-review"), {
         method: "POST",
         credentials: "include",
         body: form,
@@ -132,7 +152,7 @@ const WriteReview = () => {
       }
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: "Failed to submit review" }));
+        const errorData = await readJsonResponse(res).catch(() => ({ error: "Failed to submit review" }));
 
         let errorMsg = errorData.error || "Failed to submit review";
         if (errorData.details) {

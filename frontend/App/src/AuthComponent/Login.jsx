@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { buildApiUrl, readJsonResponse } from "../lib/api";
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -17,14 +18,14 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        const res = await fetch(buildApiUrl("/auth/login"), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include', // 🍪 REQUIRED
             body: JSON.stringify({ email, password }),
         });
 
-        const data = await res.json();
+        const data = await readJsonResponse(res);
 
         if (!res.ok) {
             alert(data.error || 'Login failed');

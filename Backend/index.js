@@ -18,18 +18,6 @@ const cookieParser = require("cookie-parser");
 
 const app = express();
 app.use(cookieParser());
-
-
-
-// configure CORS to accept both production frontend and local dev server
-app.use(
-  cors({
-    origin: process.env.NODE_ENV === "production"
-      ? "https://product-rating-and-review-system-1.onrender.com"
-      : ["http://localhost:5173", "http://localhost:5000", "http://localhost:5175", "http://localhost:5176", "http://localhost:3000"],
-    credentials: true
-  })
-);
 const allowedOrigins = [
   process.env.FRONTEND_URL || "https://product-rating-and-review-system-1.onrender.com",
   "http://localhost:5173",
@@ -37,13 +25,16 @@ const allowedOrigins = [
   "http://localhost:5174",
   "http://localhost:5175",
   "http://localhost:5176",
+  "http://localhost:3000",
 ];
 app.use(cors({
   origin: (origin, callback) => {
-    // debug log
     console.log("CORS check for origin:", origin);
-    // allow requests with no origin (e.g. mobile apps, curl)
-    if (!origin) return callback(null, true);
+    // Postman/curl/mobile apps often omit Origin completely.
+    if (!origin) {
+      console.log("--> no origin header, allowing request");
+      return callback(null, true);
+    }
     if (allowedOrigins.includes(origin)) {
       console.log("--> origin allowed");
       return callback(null, true);

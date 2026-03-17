@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { buildApiUrl, readJsonResponse } from "../lib/api";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -49,14 +50,14 @@ const SignUp = () => {
         password: formData.password,
       };
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/signup`, {
+      const res = await fetch(buildApiUrl("/auth/signup"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", 
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data = await readJsonResponse(res);
 
       if (!res.ok) {
         alert(data.error || "Signup failed");
