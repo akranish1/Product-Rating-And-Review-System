@@ -14,6 +14,35 @@ const LOCAL_BLOCKED_WORDS = [
   "faggot",
 ];
 
+const LOCAL_MODERATION_RULES = [
+  { category: "harassment", score: 0.8, words: ["fuck", "asshole", "shit"] },
+  { category: "violence", score: 0.9, words: ["kill", "murder", "threat", "violence"] },
+  { category: "hate", score: 0.95, words: ["nigger", "faggot"] },
+  { category: "sexual", score: 0.95, words: ["rape"] },
+];
+
+function getLocalModeration(reviewText) {
+  const normalizedReview = reviewText.toLowerCase();
+  const scores = {};
+  const violatedCategories = [];
+
+  for (const rule of LOCAL_MODERATION_RULES) {
+    if (rule.words.some((word) => normalizedReview.includes(word))) {
+      scores[rule.category] = Math.max(scores[rule.category] || 0, rule.score);
+      violatedCategories.push({
+        category: rule.category,
+        score: rule.score,
+      });
+    }
+  }
+
+  return {
+    allowed: violatedCategories.length === 0,
+    scores,
+    violatedCategories,
+  };
+}
+
 const WriteReview = () => {
   const [product, setProduct] = useState("");
   const [category, setCategory] = useState("");
@@ -25,11 +54,10 @@ const WriteReview = () => {
   const [error, setError] = useState("");
   const [moderationWarning, setModerationWarning] = useState("");
   const [toxicityScores, setToxicityScores] = useState(null);
-  const [isCheckingToxicity, setIsCheckingToxicity] = useState(false);
 
   const navigate = useNavigate();
 
-  const checkReviewModeration = async (reviewText) => {
+  const checkReviewModeration = (reviewText) => {
     const trimmedReview = reviewText.trim();
 
     if (trimmedReview.length < 5) {
@@ -38,13 +66,7 @@ const WriteReview = () => {
       return { allowed: true, scores: {}, violatedCategories: [] };
     }
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/check-review`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ review: trimmedReview }),
-    });
-
-    const data = await res.json();
+    const data = getLocalModeration(trimmedReview);
     setToxicityScores(data.scores || {});
 
     if (!data.allowed) {
@@ -61,18 +83,9 @@ const WriteReview = () => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      setIsCheckingToxicity(true);
-      try {
-        await checkReviewModeration(review);
-      } catch (err) {
-        console.error("Toxicity check error:", err);
-        setModerationWarning("");
-        setToxicityScores(null);
-      } finally {
-        setIsCheckingToxicity(false);
-      }
-    }, 500);
+    const timer = setTimeout(() => {
+      checkReviewModeration(review);
+    }, 250);
 
     return () => clearTimeout(timer);
   }, [review]);
@@ -89,16 +102,11 @@ const WriteReview = () => {
       return;
     }
 
-    if (isCheckingToxicity) {
-      setError("Please wait while we check your content for appropriateness.");
-      return;
-    }
-
     setIsSubmitting(true);
     setError("");
 
     try {
-      const moderationResult = await checkReviewModeration(trimmedReview);
+      const moderationResult = checkReviewModeration(trimmedReview);
       if (!moderationResult.allowed) {
         setError("Cannot submit review with inappropriate content. Please revise your review.");
         return;
@@ -212,7 +220,6 @@ const WriteReview = () => {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-xs font-black text-gray-800 uppercase tracking-widest block ml-1">Detailed Review</label>
-                  {isCheckingToxicity && <span className="text-xs text-gray-500">Checking content...</span>}
                 </div>
                 <textarea
                   placeholder="What did you like or dislike?"
@@ -251,17 +258,15 @@ const WriteReview = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting || isCheckingToxicity || Boolean(moderationWarning)}
+                disabled={isSubmitting || Boolean(moderationWarning)}
                 className={`w-full py-5 rounded-3xl font-black text-white uppercase tracking-widest text-sm transition-all shadow-xl
-                  ${isSubmitting || isCheckingToxicity || moderationWarning
+                  ${isSubmitting || moderationWarning
                     ? "bg-red-400 cursor-not-allowed"
                     : "bg-gray-900 hover:bg-green-600 active:scale-[0.98]"}`}
               >
                 {isSubmitting
                   ? "Publishing..."
-                  : isCheckingToxicity
-                    ? "Checking content..."
-                    : moderationWarning
+                  : moderationWarning
                       ? "Content Blocked - Revise Review"
                       : "Publish Review"}
               </button>

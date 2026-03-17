@@ -26,7 +26,7 @@ app.use(
   cors({
     origin: process.env.NODE_ENV === "production"
       ? "https://product-rating-and-review-system-1.onrender.com"
-      : ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:3000"],
+      : ["http://localhost:5173", "http://localhost:5000", "http://localhost:5175", "http://localhost:5176", "http://localhost:3000"],
     credentials: true
   })
 );
@@ -257,12 +257,13 @@ app.post("/check-review", async (req, res) => {
     }
 
     const { checkToxicity } = require("./middleware/moderationMiddleware");
-    const moderation = await checkToxicity(review);
+    const moderation = await checkToxicity(review, { allowRemote: false });
 
     res.json({
       allowed: !moderation.flagged,
       scores: moderation.scores,
-      violatedCategories: moderation.violatedCategories || []
+      violatedCategories: moderation.violatedCategories || [],
+      source: moderation.source,
     });
   } catch (err) {
     console.error("Check review error:", err);
