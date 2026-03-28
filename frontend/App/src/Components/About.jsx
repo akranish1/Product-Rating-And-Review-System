@@ -61,10 +61,6 @@ export default function About() {
         <div className="text-center text-sm text-gray-600">
           <span className="font-medium">Made by</span>
           <span className="ml-2">Anish</span>
-          <span className="mx-2">•</span>
-          <span>Dev</span>
-          <span className="mx-2">•</span>
-          <span>Rashim</span>
         </div>
       </div>
     </div>
