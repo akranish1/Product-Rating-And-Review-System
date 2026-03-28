@@ -30,17 +30,22 @@ const {
 const app = express();
 const PORT = process.env.PORT || 5000;
 const uploadsDir = path.join(__dirname, "uploads");
+const normalizeOrigin = (origin = "") => origin.replace(/\/+$/, "");
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL ||
-    "https://product-rating-and-review-system-2.onrender.com/",
+const allowedOrigins = new Set(
+  [
+    process.env.FRONTEND_URL,
+    "https://product-rating-and-review-system-2.onrender.com",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "http://localhost:5174",
   "http://localhost:5175",
   "http://localhost:5176",
   "http://localhost:3000",
-];
+  ]
+    .filter(Boolean)
+    .map(normalizeOrigin)
+);
 
 const configureMiddleware = () => {
   app.use(express.json());
@@ -48,21 +53,38 @@ const configureMiddleware = () => {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin) {
           return callback(null, true);
         }
 
-        return callback(new Error("CORS policy: origin not allowed"));
+        if (allowedOrigins.has(normalizeOrigin(origin))) {
+          return callback(null, true);
+        }
+
+        const corsError = new Error(`CORS policy: origin not allowed (${origin})`);
+        corsError.status = 403;
+        return callback(corsError);
       },
       credentials: true,
     })
   );
   app.use("/uploads", express.static(uploadsDir));
 };
-app.use(cors({
-  origin: "https://product-rating-and-review-system-2.onrender.com",
-  credentials: true
-}));
+
+const registerErrorHandler = () => {
+  app.use((err, req, res, next) => {
+    console.error("Unhandled request error:", err.message);
+
+    if (res.headersSent) {
+      return next(err);
+    }
+
+    return res.status(err.status || 500).json({
+      error: err.message || "Server error",
+    });
+  });
+};
+
 const registerRoutes = () => {
   const upload = createReviewUploadMiddleware();
 
@@ -127,11 +149,20 @@ const bootstrapServer = async () => {
     ensureUploadsDir();
     configureMiddleware();
     registerRoutes();
+    registerErrorHandler();
 
     await connectDB();
     await User.createIndexes();
     await backfillVerificationExpiryDates();
-    await getRedisClient();
+    try {
+      await getRedisClient();
+      console.log("Redis connected");
+    } catch (err) {
+      console.error(
+        "Redis initialization failed. Continuing without Redis at startup:",
+        err.message
+      );
+    }
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
