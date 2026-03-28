@@ -1,6 +1,6 @@
 
 import './App.css'
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useParams } from "react-router-dom";
 import Homepage from './Components/Homepage'
 import MainLayout from './Components/MainLayout';
 import ProtectedRoute from './Components/ProtectedRoute';
@@ -14,6 +14,19 @@ import Profile from './Components/Profile';
 import ReviewPage from './Components/ReviewPage';
 import ScrollToTop from './Components/ScrollToTop';
 
+function ReviewAliasRedirect({ mode = "list" }) {
+  const { id } = useParams();
+
+  if (mode === "detail" && id) {
+    return <Navigate to={`/review/${id}`} replace />;
+  }
+
+  if (mode === "edit" && id) {
+    return <Navigate to={`/review/${id}/edit`} replace />;
+  }
+
+  return <Navigate to="/review" replace />;
+}
 
 
 
@@ -31,9 +44,12 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/review/:id" element={<ReviewDetail />} />
           <Route path="/review" element={<ReviewPage/>} />
+          <Route path="/reviews" element={<ReviewAliasRedirect />} />
+          <Route path="/reviews/:id" element={<ReviewAliasRedirect mode="detail" />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/write-review" element={<WriteReview />} />
             <Route path="/review/:id/edit" element={<WriteReview />} />
+            <Route path="/reviews/:id/edit" element={<ReviewAliasRedirect mode="edit" />} />
             <Route path="/profile" element={<Profile/>} />
           </Route>
         </Route>
