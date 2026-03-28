@@ -31,17 +31,25 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const uploadsDir = path.join(__dirname, "uploads");
 const normalizeOrigin = (origin = "") => origin.replace(/\/+$/, "");
+const frontendEnvOrigins = [
+  process.env.FRONTEND_URL,
+  ...(process.env.FRONTEND_URLS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
 
 const allowedOrigins = new Set(
   [
-    process.env.FRONTEND_URL,
+    ...frontendEnvOrigins,
     "https://product-rating-and-review-system-2.onrender.com",
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-  "http://localhost:5174",
-  "http://localhost:5175",
-  "http://localhost:5176",
-  "http://localhost:3000",
+    "http://rateright.s3-website.ap-south-1.amazonaws.com",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:5176",
+    "http://localhost:3000",
   ]
     .filter(Boolean)
     .map(normalizeOrigin)

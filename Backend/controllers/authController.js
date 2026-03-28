@@ -146,6 +146,7 @@ const verifyOtp = async (req, res) => {
     return res.json({
       message: "Email verified successfully",
       user: buildUserResponse(user),
+      token,
     });
   } catch (err) {
     console.error("Verify OTP error:", err);
@@ -260,6 +261,7 @@ const login = async (req, res) => {
 
     return res.json({
       user: buildUserResponse(user),
+      token,
     });
   } catch (err) {
     console.error("Login error:", err);

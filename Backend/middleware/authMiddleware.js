@@ -16,7 +16,11 @@ const rejectAuth = (res, message) => {
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.cookies?.token;
+    const authHeader = req.headers.authorization || "";
+    const bearerToken = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7).trim()
+      : "";
+    const token = bearerToken || req.cookies?.token;
 
     if (!token) {
       return rejectAuth(res, "Unauthorized: No token");
