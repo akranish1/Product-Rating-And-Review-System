@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { buildApiUrl } from "../lib/api";
-import { clearClientAuth, fetchCurrentUser, getStoredUser } from "../lib/auth";
+import {
+  clearClientAuth,
+  fetchCurrentUser,
+  getAuthFetchOptions,
+  getStoredUser,
+} from "../lib/auth";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -46,10 +51,12 @@ const Navbar = () => {
 
  const handleLogout = async () => {
   try {
-    await fetch(buildApiUrl("/auth/logout"), {
-  method: "POST",
-  credentials: "include",
-});
+    await fetch(
+      buildApiUrl("/auth/logout"),
+      getAuthFetchOptions({
+        method: "POST",
+      })
+    );
 
 clearClientAuth();
 

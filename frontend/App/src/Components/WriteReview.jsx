@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { buildApiUrl, buildAssetUrl, readJsonResponse } from "../lib/api";
-import { clearClientAuth, getStoredUser } from "../lib/auth";
+import { clearClientAuth, getAuthFetchOptions, getStoredUser } from "../lib/auth";
 
 const WriteReview = () => {
   const { id } = useParams();
@@ -91,11 +91,13 @@ const WriteReview = () => {
       const endpoint = isEditing ? `/reviews/${id}` : "/write-review";
       const method = isEditing ? "PUT" : "POST";
 
-      const res = await fetch(buildApiUrl(endpoint), {
-        method,
-        credentials: "include",
-        body: form,
-      });
+      const res = await fetch(
+        buildApiUrl(endpoint),
+        getAuthFetchOptions({
+          method,
+          body: form,
+        })
+      );
 
       if (res.status === 401) {
         clearClientAuth();

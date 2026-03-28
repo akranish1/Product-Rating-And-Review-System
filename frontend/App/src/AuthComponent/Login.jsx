@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { buildApiUrl, readJsonResponse } from "../lib/api";
+import { storeClientSession } from "../lib/auth";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -50,8 +51,7 @@ const Login = () => {
         return;
       }
 
-      localStorage.setItem("currentUser", JSON.stringify(data.user));
-      localStorage.setItem("isLoggedIn", "true");
+      storeClientSession(data);
 
       navigate("/");
     } catch (err) {

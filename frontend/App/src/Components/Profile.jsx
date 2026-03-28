@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildApiUrl, buildAssetUrl, readJsonResponse } from "../lib/api";
-import { clearClientAuth, fetchCurrentUser, getStoredUser } from "../lib/auth";
+import {
+  clearClientAuth,
+  fetchCurrentUser,
+  getAuthFetchOptions,
+  getStoredUser,
+} from "../lib/auth";
 import { formatReviewTimestamp } from "../lib/reviewTime";
 
 const Profile = () => {
@@ -26,9 +31,7 @@ const Profile = () => {
 
         const [userResult, reviewsResponse] = await Promise.all([
           fetchCurrentUser(),
-          fetch(buildApiUrl("/reviews/mine"), {
-            credentials: "include",
-          }),
+          fetch(buildApiUrl("/reviews/mine"), getAuthFetchOptions()),
         ]);
 
         if (!isActive) {
@@ -78,10 +81,12 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch(buildApiUrl("/auth/logout"), {
-        method: "POST",
-        credentials: "include",
-      });
+      await fetch(
+        buildApiUrl("/auth/logout"),
+        getAuthFetchOptions({
+          method: "POST",
+        })
+      );
     } catch (err) {
       console.error("Logout failed", err);
     } finally {

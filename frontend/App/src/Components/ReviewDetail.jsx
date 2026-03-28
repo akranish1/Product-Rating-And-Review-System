@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { buildApiUrl, buildAssetUrl, readJsonResponse } from "../lib/api";
-import { clearClientAuth, fetchCurrentUser, getStoredUser } from "../lib/auth";
+import {
+  clearClientAuth,
+  fetchCurrentUser,
+  getAuthFetchOptions,
+  getStoredUser,
+} from "../lib/auth";
 import { formatReviewTimestamp } from "../lib/reviewTime";
 
 const ReviewDetail = () => {
@@ -84,10 +89,12 @@ const ReviewDetail = () => {
       setIsDeleting(true);
       setActionError("");
 
-      const res = await fetch(buildApiUrl(`/reviews/${id}`), {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(
+        buildApiUrl(`/reviews/${id}`),
+        getAuthFetchOptions({
+          method: "DELETE",
+        })
+      );
 
       if (res.status === 401) {
         clearClientAuth();

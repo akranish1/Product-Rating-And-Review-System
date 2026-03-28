@@ -78,6 +78,7 @@ const SignUp = () => {
 
       localStorage.removeItem("currentUser");
       localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("authToken");
 
       navigate(`/auth/verify-otp?email=${encodeURIComponent(data.email)}`, {
         state: {

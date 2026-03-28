@@ -6,6 +6,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { buildApiUrl, readJsonResponse } from "../lib/api";
+import { storeClientSession } from "../lib/auth";
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
@@ -65,8 +66,7 @@ const VerifyOtp = () => {
         return;
       }
 
-      localStorage.setItem("currentUser", JSON.stringify(data.user));
-      localStorage.setItem("isLoggedIn", "true");
+      storeClientSession(data);
 
       setFeedback({
         type: "success",
