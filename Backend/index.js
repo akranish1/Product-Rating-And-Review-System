@@ -59,7 +59,10 @@ const configureMiddleware = () => {
   );
   app.use("/uploads", express.static(uploadsDir));
 };
-
+app.use(cors({
+  origin: "https://product-rating-and-review-system-2.onrender.com",
+  credentials: true
+}));
 const registerRoutes = () => {
   const upload = createReviewUploadMiddleware();
 
