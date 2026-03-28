@@ -1,23 +1,49 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
+const clearAuthCookie = (res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
+};
 
-const authMiddleware = (req, res, next) => {
-  const token = req.cookies?.token; // 🍪 read from cookie
+const rejectAuth = (res, message) => {
+  clearAuthCookie(res);
+  return res.status(401).json({ error: message });
+};
 
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
+const authMiddleware = async (req, res, next) => {
   try {
+    const token = req.cookies?.token;
+
+    if (!token) {
+      return rejectAuth(res, "Unauthorized: No token");
+    }
+
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "secret"
     );
 
-    req.user = decoded; // { id, email }
-    next();
+    const user = await User.findById(decoded.id).select(
+      "fullName email role isVerified"
+    );
+
+    if (!user) {
+      return rejectAuth(res, "User no longer exists");
+    }
+
+    if (user.isVerified === false) {
+      return rejectAuth(res, "Please verify your email to continue");
+    }
+
+    req.user = user;
+
+    return next();
   } catch (err) {
-    return res.status(401).json({ error: "Invalid token" });
+    return rejectAuth(res, "Invalid or expired token");
   }
 };
 

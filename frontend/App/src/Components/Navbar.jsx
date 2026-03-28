@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { buildApiUrl } from "../lib/api";
+import { clearClientAuth, fetchCurrentUser, getStoredUser } from "../lib/auth";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -9,14 +10,39 @@ const Navbar = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const check = () => {
-      const u = localStorage.getItem('currentUser') || localStorage.getItem('user');
-      setIsLogged(Boolean(u));
+    let isActive = true;
+
+    const syncAuthState = async () => {
+      const storedUser = getStoredUser();
+
+      if (!storedUser) {
+        if (isActive) {
+          setIsLogged(false);
+        }
+        return;
+      }
+
+      const result = await fetchCurrentUser();
+
+      if (!isActive) {
+        return;
+      }
+
+      setIsLogged(result.ok);
     };
-    check();
-    window.addEventListener('storage', check);
-    return () => window.removeEventListener('storage', check);
-  }, []);
+
+    const handleStorage = () => {
+      setIsLogged(Boolean(getStoredUser()));
+    };
+
+    void syncAuthState();
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      isActive = false;
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [location.pathname]);
 
  const handleLogout = async () => {
   try {
@@ -25,8 +51,7 @@ const Navbar = () => {
   credentials: "include",
 });
 
-localStorage.removeItem("currentUser");
-localStorage.removeItem("isLoggedIn");
+clearClientAuth();
 
 setIsLogged(false);
 navigate("/auth");

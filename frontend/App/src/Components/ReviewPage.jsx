@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildApiUrl, buildAssetUrl, readJsonResponse } from "../lib/api";
+import { formatReviewTimestamp } from "../lib/reviewTime";
 
 const ReviewPage = () => {
   const navigate = useNavigate();
@@ -142,7 +143,9 @@ const ReviewPage = () => {
                     <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-full">
                       {review.category}
                     </span>
-                    <span className="text-xs text-slate-400">{review.time}</span>
+                    <span className="text-xs text-slate-400">
+                      {formatReviewTimestamp(review)}
+                    </span>
                   </div>
 
                   <h2 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-green-600 transition-colors">

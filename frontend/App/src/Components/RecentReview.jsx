@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { buildAssetUrl } from "../lib/api";
+import { formatReviewTimestamp } from "../lib/reviewTime";
 const RecentReview = ({ reviews }) => {
   const safeReviews = Array.isArray(reviews) ? reviews : [];
   const navigate = useNavigate();
@@ -23,7 +24,9 @@ const RecentReview = ({ reviews }) => {
             <div className="flex items-center justify-between ">
               <p className="font-medium">{item.user}</p>
               <div className="flex items-center space-x-2">
-                <p className="text-sm text-gray-500">{item.time}</p>
+                <p className="text-sm text-gray-500">
+                  {formatReviewTimestamp(item)}
+                </p>
                 {item.images && item.images[0] && (
                   <img
                     src={getImageSrc(item.images[0])}
@@ -35,6 +38,9 @@ const RecentReview = ({ reviews }) => {
             </div>
 
             <p className="text-blue-600 text-sm mt-1">{item.product}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Avg {Number(item.productStats?.avgRating || 0).toFixed(1)} | {item.productStats?.totalReviews || 0} reviews
+            </p>
 
             <div className="flex mt-1">
               {Array.from({ length: item.rating }).map((_, i) => (

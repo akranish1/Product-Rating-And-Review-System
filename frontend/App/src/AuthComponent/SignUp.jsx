@@ -1,46 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { buildApiUrl, readJsonResponse } from "../lib/api";
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    role: '',
-    password: '',
-    confirmPassword: '',
+    fullName: "",
+    email: "",
+    role: "",
+    password: "",
+    confirmPassword: "",
     agreedToTerms: false,
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // ✅ FIXED: Added the missing handleChange function
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      // If it's a checkbox, use 'checked', otherwise use 'value'
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const bgImage =
     "https://ps.w.org/ryviu/assets/banner-1544x500.png?rev=2182075";
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+
+    if (feedback.message) {
+      setFeedback({ type: "", message: "" });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setFeedback({ type: "error", message: "Passwords do not match." });
       return;
     }
 
     if (!formData.agreedToTerms) {
-      alert("Please agree to the terms.");
+      setFeedback({
+        type: "error",
+        message: "Please agree to the terms and privacy policy.",
+      });
       return;
     }
 
     setIsLoading(true);
+    setFeedback({ type: "", message: "" });
 
     try {
       const payload = {
@@ -53,36 +62,38 @@ const SignUp = () => {
       const res = await fetch(buildApiUrl("/auth/signup"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", 
+        credentials: "include",
         body: JSON.stringify(payload),
       });
 
       const data = await readJsonResponse(res);
 
       if (!res.ok) {
-        alert(data.error || "Signup failed");
-        setIsLoading(false);
+        setFeedback({
+          type: "error",
+          message: data.error || "Signup failed",
+        });
         return;
       }
 
-      if (data.user) {
-        localStorage.setItem(
-          "currentUser",
-          JSON.stringify(data.user)
-        );
-      }
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("isLoggedIn");
 
-      alert("Account created successfully!");
-      window.location.href = "/auth";
+      navigate(`/auth/verify-otp?email=${encodeURIComponent(data.email)}`, {
+        state: {
+          message:
+            data.message ||
+            "Your account was created. Enter the OTP sent to your email.",
+        },
+      });
     } catch (err) {
       console.error("Signup error:", err);
-      alert("Signup failed");
+      setFeedback({ type: "error", message: "Signup failed" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // UI styling variables (kept exactly as you provided)
   const labelBaseClasses =
     "absolute left-4 px-1 transition-all duration-200 pointer-events-none rounded";
   const labelFloatingState = "-top-2.5 text-xs text-blue-300 bg-gray-900";
@@ -114,9 +125,21 @@ const SignUp = () => {
             Create Account
           </h2>
           <p className="text-blue-200/70 mt-2 text-sm">
-            Join the RateMaster community today.
+            Create your RateRight profile and verify it with a secure email OTP.
           </p>
         </div>
+
+        {feedback.message ? (
+          <div
+            className={`mb-5 rounded-2xl border px-4 py-3 text-sm ${
+              feedback.type === "error"
+                ? "border-red-400/40 bg-red-500/10 text-red-100"
+                : "border-emerald-400/40 bg-emerald-500/10 text-emerald-100"
+            }`}
+          >
+            {feedback.message}
+          </div>
+        ) : null}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="relative group">
@@ -166,7 +189,7 @@ const SignUp = () => {
               className="absolute right-3 top-4 z-20 text-gray-400 hover:text-white"
               tabIndex="-1"
             >
-              👁
+              Show
             </button>
 
             <div className="relative group">
@@ -177,7 +200,7 @@ const SignUp = () => {
                 placeholder=" "
                 value={formData.password}
                 onChange={handleChange}
-                className={`${inputBaseClasses} pr-12`}
+                className={`${inputBaseClasses} pr-16`}
               />
               <label className={finalLabelClasses}>Password</label>
             </div>
@@ -190,7 +213,7 @@ const SignUp = () => {
                 placeholder=" "
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className={`${inputBaseClasses} pr-12`}
+                className={`${inputBaseClasses} pr-16`}
               />
               <label className={finalLabelClasses}>Confirm Password</label>
             </div>
@@ -212,9 +235,9 @@ const SignUp = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold disabled:opacity-70"
           >
-            {isLoading ? "Creating Account..." : "Sign Up"}
+            {isLoading ? "Sending OTP..." : "Sign Up"}
           </button>
         </form>
       </div>
