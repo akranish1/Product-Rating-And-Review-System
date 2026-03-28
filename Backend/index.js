@@ -33,7 +33,7 @@ const uploadsDir = path.join(__dirname, "uploads");
 
 const allowedOrigins = [
   process.env.FRONTEND_URL ||
-    "https://product-rating-and-review-system-1.onrender.com",
+    "https://product-rating-and-review-system-2.onrender.com/",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "http://localhost:5174",

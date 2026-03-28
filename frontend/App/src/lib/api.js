@@ -9,14 +9,7 @@ export function getApiBaseUrl() {
     return normalizeBaseUrl(envUrl);
   }
 
-  if (typeof window !== "undefined") {
-    const { hostname } = window.location;
-    if (hostname === "localhost" || hostname === "127.0.0.1") {
-      return "http://localhost:5000";
-    }
-  }
-
-  throw new Error("VITE_API_URL is not configured. Set it to your backend API URL.");
+  return "/api";
 }
 
 export function buildApiUrl(path = "") {
