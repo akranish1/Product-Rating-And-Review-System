@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const VERIFICATION_EXPIRY_HOURS = 24;
+const AUTH_COOKIE_NAME = "authToken";
 
 const generateOTP = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
@@ -52,13 +53,26 @@ const generateToken = (user) =>
     { expiresIn: "7d" }
   );
 
+const buildAuthCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
+
 const setAuthCookie = (res, token) => {
-  res.cookie("token", token, {
+  res.cookie(AUTH_COOKIE_NAME, token, buildAuthCookieOptions());
+};
+
+const clearAuthCookie = (res) => {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+  };
+
+  res.clearCookie(AUTH_COOKIE_NAME, cookieOptions);
+  res.clearCookie("token", cookieOptions);
 };
 
 const backfillVerificationExpiryDates = async () => {
@@ -93,9 +107,11 @@ const backfillVerificationExpiryDates = async () => {
 };
 
 module.exports = {
+  AUTH_COOKIE_NAME,
   backfillVerificationExpiryDates,
   buildUserResponse,
   buildVerificationExpiryDate,
+  clearAuthCookie,
   clearVerificationFields,
   ensureVerificationExpiry,
   generateToken,

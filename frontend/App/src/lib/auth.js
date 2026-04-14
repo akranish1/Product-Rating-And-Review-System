@@ -1,7 +1,63 @@
 import { buildApiUrl, getApiBaseUrl, readJsonResponse } from "./api";
 
 const AUTH_TOKEN_KEY = "authToken";
+const CURRENT_USER_KEY = "currentUser";
+const IS_LOGGED_IN_KEY = "isLoggedIn";
+const AUTH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 const TOKEN_EXPIRY_BUFFER_MS = 5 * 1000;
+
+function getCookieValue(name) {
+  if (typeof document === "undefined") {
+    return "";
+  }
+
+  const cookies = document.cookie ? document.cookie.split("; ") : [];
+  const prefix = `${name}=`;
+
+  for (const cookie of cookies) {
+    if (cookie.startsWith(prefix)) {
+      return cookie.slice(prefix.length);
+    }
+  }
+
+  return "";
+}
+
+function setCookieValue(name, value, maxAge = AUTH_COOKIE_MAX_AGE) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
+}
+
+function removeCookie(name) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax${secure}`;
+}
+
+function clearLegacyLocalStorage() {
+  if (typeof localStorage === "undefined") {
+    return;
+  }
+
+  localStorage.removeItem(CURRENT_USER_KEY);
+  localStorage.removeItem(IS_LOGGED_IN_KEY);
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+}
+
+function notifyAuthChanged() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new Event("auth-change"));
+}
 
 function decodeTokenPayload(token) {
   if (!token) {
@@ -45,17 +101,19 @@ function buildUserFromToken(token) {
 }
 
 export function clearClientAuth() {
-  localStorage.removeItem("currentUser");
-  localStorage.removeItem("isLoggedIn");
-  localStorage.removeItem(AUTH_TOKEN_KEY);
+  removeCookie(AUTH_TOKEN_KEY);
+  removeCookie(CURRENT_USER_KEY);
+  removeCookie(IS_LOGGED_IN_KEY);
+  clearLegacyLocalStorage();
+  notifyAuthChanged();
 }
 
 export function getStoredUser() {
-  const rawUser = localStorage.getItem("currentUser");
+  const rawUser = getCookieValue(CURRENT_USER_KEY);
 
   if (rawUser) {
     try {
-      return JSON.parse(rawUser);
+      return JSON.parse(decodeURIComponent(rawUser));
     } catch {
       clearClientAuth();
       return null;
@@ -65,8 +123,12 @@ export function getStoredUser() {
   const tokenUser = buildUserFromToken(getStoredToken());
 
   if (tokenUser) {
-    localStorage.setItem("currentUser", JSON.stringify(tokenUser));
-    localStorage.setItem("isLoggedIn", "true");
+    setCookieValue(
+      CURRENT_USER_KEY,
+      encodeURIComponent(JSON.stringify(tokenUser))
+    );
+    setCookieValue(IS_LOGGED_IN_KEY, "true");
+    clearLegacyLocalStorage();
     return tokenUser;
   }
 
@@ -78,20 +140,26 @@ export function getStoredUser() {
 }
 
 export function getStoredToken() {
-  return localStorage.getItem(AUTH_TOKEN_KEY) || "";
+  return decodeURIComponent(getCookieValue(AUTH_TOKEN_KEY));
 }
 
 export function storeClientSession({ user, token }) {
   const sessionUser = user || buildUserFromToken(token);
 
-  if (sessionUser) {
-    localStorage.setItem("currentUser", JSON.stringify(sessionUser));
-    localStorage.setItem("isLoggedIn", "true");
+  if (token) {
+    setCookieValue(AUTH_TOKEN_KEY, encodeURIComponent(token));
   }
 
-  if (token) {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
+  if (sessionUser) {
+    setCookieValue(
+      CURRENT_USER_KEY,
+      encodeURIComponent(JSON.stringify(sessionUser))
+    );
+    setCookieValue(IS_LOGGED_IN_KEY, "true");
   }
+
+  clearLegacyLocalStorage();
+  notifyAuthChanged();
 }
 
 export function getAuthFetchOptions(options = {}) {
@@ -110,49 +178,37 @@ export function getAuthFetchOptions(options = {}) {
 }
 
 function shouldProbeServerSession() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  const apiBaseUrl = getApiBaseUrl();
-
-  if (apiBaseUrl.startsWith("/")) {
-    return true;
-  }
-
-  try {
-    return new URL(apiBaseUrl, window.location.origin).origin === window.location.origin;
-  } catch {
-    return false;
-  }
+  return typeof window !== "undefined" && Boolean(getApiBaseUrl());
 }
 
 export async function fetchCurrentUser() {
-  const storedToken = getStoredToken();
   const storedUser = getStoredUser();
 
-  if (storedToken && storedUser) {
-    return { ok: true, user: storedUser };
-  }
-
-  if (!storedToken && !shouldProbeServerSession()) {
+  if (!shouldProbeServerSession()) {
     clearClientAuth();
     return { ok: false, error: "No stored session" };
   }
 
-  const response = await fetch(
-    buildApiUrl("/auth/me"),
-    getAuthFetchOptions()
-  );
+  try {
+    const response = await fetch(
+      buildApiUrl("/auth/me"),
+      getAuthFetchOptions()
+    );
 
-  const data = await readJsonResponse(response).catch(() => ({}));
+    const data = await readJsonResponse(response).catch(() => ({}));
 
-  if (!response.ok) {
-    clearClientAuth();
-    return { ok: false, error: data.error || "Unauthorized" };
+    if (!response.ok) {
+      clearClientAuth();
+      return { ok: false, error: data.error || "Unauthorized" };
+    }
+
+    storeClientSession(data);
+
+    return { ok: true, user: data.user || storedUser };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error.message || "Unable to verify session",
+    };
   }
-
-  storeClientSession(data);
-
-  return { ok: true, user: data.user };
 }

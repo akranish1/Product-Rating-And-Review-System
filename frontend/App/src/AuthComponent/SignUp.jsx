@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildApiUrl, readJsonResponse } from "../lib/api";
+import { clearClientAuth } from "../lib/auth";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -76,9 +77,7 @@ const SignUp = () => {
         return;
       }
 
-      localStorage.removeItem("currentUser");
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("authToken");
+      clearClientAuth();
 
       navigate(`/auth/verify-otp?email=${encodeURIComponent(data.email)}`, {
         state: {

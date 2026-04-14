@@ -20,11 +20,8 @@ const Navbar = () => {
     const syncAuthState = async () => {
       const storedUser = getStoredUser();
 
-      if (!storedUser) {
-        if (isActive) {
-          setIsLogged(false);
-        }
-        return;
+      if (storedUser && isActive) {
+        setIsLogged(true);
       }
 
       const result = await fetchCurrentUser();
@@ -36,16 +33,16 @@ const Navbar = () => {
       setIsLogged(result.ok);
     };
 
-    const handleStorage = () => {
+    const handleAuthChanged = () => {
       setIsLogged(Boolean(getStoredUser()));
     };
 
     void syncAuthState();
-    window.addEventListener('storage', handleStorage);
+    window.addEventListener("auth-change", handleAuthChanged);
 
     return () => {
       isActive = false;
-      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener("auth-change", handleAuthChanged);
     };
   }, [location.pathname]);
 

@@ -1,13 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-
-const clearAuthCookie = (res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  });
-};
+const { AUTH_COOKIE_NAME, clearAuthCookie } = require("../services/authService");
 
 const rejectAuth = (res, message) => {
   clearAuthCookie(res);
@@ -20,7 +13,8 @@ const authMiddleware = async (req, res, next) => {
     const bearerToken = authHeader.startsWith("Bearer ")
       ? authHeader.slice(7).trim()
       : "";
-    const token = bearerToken || req.cookies?.token;
+    const token =
+      bearerToken || req.cookies?.[AUTH_COOKIE_NAME] || req.cookies?.token;
 
     if (!token) {
       return rejectAuth(res, "Unauthorized: No token");
